@@ -113,6 +113,10 @@ button, input { font: inherit; color: inherit; }
 .btn.line:hover { box-shadow: inset 0 0 0 2px var(--soft); filter: none; }
 .btn.line:active { transform: none; }
 .btn svg { width: 20px; height: 20px; flex: none; }
+.btn.google { background: #fff; color: #1F1F1F; box-shadow: 0 4px 0 #9AA79F; }
+.btn.google:active { box-shadow: 0 0 0 #9AA79F; }
+.or { display: flex; align-items: center; gap: 12px; margin: 0; font-size: .85rem; color: var(--muted); }
+.or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--card-line); }
 .btn .arr { transition: transform .15s; }
 .btn:hover .arr { transform: translateX(3px); }
 .btn-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
@@ -120,7 +124,8 @@ button, input { font: inherit; color: inherit; }
 
 /* ---------- Scen ---------- */
 .scene { position: relative; line-height: 0; background: var(--night); }
-.pitch { display: block; width: 100%; height: auto; }
+.pitch { display: block; width: 100%; height: min(84.6vw, 36dvh, 380px); }
+.play .pitch { height: min(60.5vw, 30dvh, 300px); }
 .pitch .ball {
   transform-box: view-box; transform-origin: 0 0;
   transform: translate(195px, 272px) scale(1.08);
@@ -167,7 +172,7 @@ button, input { font: inherit; color: inherit; }
 
 /* ---------- Fråga på ljust kort ---------- */
 .sheet {
-  position: relative; margin-top: -26px; background: var(--paper); color: var(--paper-ink);
+  position: relative; margin-top: -18px; background: var(--paper); color: var(--paper-ink);
   border-radius: 24px; padding: 22px 20px 24px; display: flex; flex-direction: column; gap: 14px;
 }
 @media (max-width: 599px) { .sheet { margin-inline: calc(-1 * max(20px, env(safe-area-inset-left, 0px)) + 8px); } }
@@ -195,6 +200,16 @@ button, input { font: inherit; color: inherit; }
 .opt.wrong { border-color: var(--wrong); background: var(--wrong-bg); box-shadow: 0 3px 0 var(--wrong); }
 .opt.wrong .key { color: var(--wrong); }
 .opt.dim { opacity: .45; box-shadow: none; transform: translateY(3px); }
+.opts.done { grid-template-columns: 1fr; gap: 8px; }
+.opts.done .opt { min-height: 0; flex-direction: row; align-items: center; gap: 12px; padding: 12px 14px; }
+.opts.done .opt .txt { flex: 1; }
+.opt.right::after, .opt.wrong::after { margin-left: auto; font-weight: 800; }
+.opts.done .opt.right::after { content: "✓"; color: var(--right); }
+.opts.done .opt.wrong::after { content: "✗"; color: var(--wrong); }
+.sheet h2.asked { font-size: 1.05rem; font-weight: 650; color: var(--paper-muted); }
+/* Nästa-knappen stannar längst ner på skärmen tills man har läst klart. */
+.after .btn { position: sticky; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); z-index: 2; box-shadow: 0 4px 0 #000, 0 0 0 14px var(--paper); }
+.after .btn:active { box-shadow: 0 0 0 #000, 0 0 0 14px var(--paper); }
 
 .after { display: flex; flex-direction: column; gap: 12px; }
 .pct { display: flex; flex-direction: column; gap: 6px; }
@@ -206,6 +221,7 @@ button, input { font: inherit; color: inherit; }
 .result-line strong { font-weight: 750; }
 .fact { margin: 0; font-size: 1rem; line-height: 1.55; color: #22362A; }
 .hint-line { margin: 0; font-size: .85rem; color: var(--paper-muted); text-align: center; }
+@media (max-height: 700px) { .hint-line { display: none; } .sheet { gap: 10px; padding-top: 18px; } .opt { min-height: 70px; } }
 
 /* ---------- Start och resultat ---------- */
 .kicker { font-weight: 600; font-size: .9rem; color: var(--muted); }

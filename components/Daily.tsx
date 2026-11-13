@@ -33,6 +33,7 @@ export default function Daily() {
   const [busy, setBusy] = useState(false);
   const deadline = useRef(0);
   const answering = useRef(false);
+  const nextRef = useRef<HTMLButtonElement>(null);
 
   const loading = useRef(false);
   const load = useCallback(async () => {
@@ -78,6 +79,7 @@ export default function Daily() {
       if (nq.finished) return load();
       setAns(null);
       setQ(nq);
+      window.scrollTo(0, 0);
       deadline.current = performance.now() + nq.ms_left;
       setMsLeft(nq.ms_left);
       answering.current = false;
@@ -134,6 +136,13 @@ export default function Daily() {
     return () => document.removeEventListener("keydown", onKey);
   }, [q, ans, answer, nextQuestion]);
 
+  // Efter svaret: håll scenen i bild så att man ser bollen gå in, och fokusera Nästa utan att sidan hoppar.
+  useEffect(() => {
+    if (!ans) return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    nextRef.current?.focus({ preventScroll: true });
+  }, [ans]);
+
   if (error && !st) return <p className="error" role="alert">{error}</p>;
   if (!st) return <Skeleton />;
 
@@ -168,11 +177,13 @@ export default function Daily() {
           <span>Straff {q.index + 1} av {TOTAL}</span>
           <span>{q.category} · {["", "lätt", "medel", "svår"][q.difficulty]}</span>
         </div>
-        <h2>{q.q}</h2>
-        <div className="opts">
+        <h2 className={ans ? "asked" : undefined}>{q.q}</h2>
+        <div className={`opts ${ans ? "done" : ""}`}>
           {q.options.map((o, i) => {
+            // Efter svaret visas bara rätt svar och ditt eventuella fel, så att allt får plats utan att scrolla.
+            if (ans && i !== ans.answer && i !== ans.choice) return null;
             let cls = "opt";
-            if (ans) cls += i === ans.answer ? " right" : i === ans.choice ? " wrong" : " dim";
+            if (ans) cls += i === ans.answer ? " right" : " wrong";
             return (
               <button key={i} className={cls} disabled={!!ans} onClick={() => answer(i)}>
                 <span className="key">{KEYS[i]}</span>
@@ -184,7 +195,6 @@ export default function Daily() {
         {!ans && <p className="hint-line">Svara innan klockan går ut, annars räddar målvakten.</p>}
         {ans && (
           <div className="after">
-            {!ans.correct && <p className="result-line">Rätt svar: <strong>{q.options[ans.answer]}</strong></p>}
             {ans.pct_correct != null && ans.answered_by > 1 && (
               <div className="pct">
                 <div className="pct-row"><span>{ans.pct_correct} % av dagens spelare satte den</span><span>{ans.answered_by} svar</span></div>
@@ -193,11 +203,11 @@ export default function Daily() {
             )}
             {ans.fact && <p className="fact">{ans.fact}</p>}
             {ans.state.finished ? (
-              <button className="btn wide" onClick={() => { setQ(null); setAns(null); window.scrollTo(0, 0); }} autoFocus>
+              <button ref={nextRef} className="btn wide" onClick={() => { setQ(null); setAns(null); window.scrollTo(0, 0); }}>
                 Se dagens resultat <Arrow />
               </button>
             ) : (
-              <button className="btn wide" onClick={nextQuestion} disabled={busy} autoFocus>
+              <button ref={nextRef} className="btn wide" onClick={nextQuestion} disabled={busy}>
                 Nästa straff <Arrow />
               </button>
             )}

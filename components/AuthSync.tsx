@@ -4,7 +4,7 @@ import { sb, rpc } from "@/lib/sb";
 import { guestId, lsGet, lsSet } from "@/lib/local";
 import { track } from "@/lib/track";
 
-type Pending = { nickname: string; consent: boolean; next?: string; join?: string };
+type Pending = { nickname: string | null; consent: boolean; next?: string; join?: string };
 
 // Läses innan Supabase hinner rensa adressen: kom användaren hit via inloggningslänken?
 const FROM_LINK = typeof window !== "undefined" && /access_token=/.test(window.location.hash);
@@ -28,13 +28,14 @@ export default function AuthSync() {
         let target = pending?.join ? "/liga/" + pending.join : pending?.next || "/?sparad=1";
         try {
           await rpc("claim_guest", { p_guest: guestId() });
-          if (pending) {
+          if (pending?.nickname) {
             await rpc("set_profile", { p_nickname: pending.nickname, p_consent: pending.consent, p_guest: guestId() });
-            if (pending.join) await rpc("join_league", { p_code: pending.join }).catch(() => {});
           } else {
+            // Google-inloggning utan smeknamn, eller länk öppnad på en annan enhet.
             const profile = await rpc("get_profile");
             if (!profile) target = "/konto";
           }
+          if (pending?.join) await rpc("join_league", { p_code: pending.join }).catch(() => {});
           track("signup_done", { consent: pending?.consent ?? null, sameDevice: !!pending });
         } catch (e) {
           lsSet("profile_error", e instanceof Error ? e.message : "error");

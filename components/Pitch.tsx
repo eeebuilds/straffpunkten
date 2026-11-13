@@ -87,9 +87,9 @@ export function Pitch({ shot = "idle", target = 0, timeLeft, compact = false }: 
   return (
     <svg
       className={`pitch shot-${shot}`}
-      viewBox={compact ? "0 56 390 270" : "0 0 390 330"}
+      viewBox={compact ? "0 72 390 236" : "0 0 390 330"}
       width="100%"
-      preserveAspectRatio="xMidYMid slice"
+      preserveAspectRatio="xMidYMid meet"
       aria-hidden="true"
       style={style}
     >
@@ -102,9 +102,9 @@ export function Pitch({ shot = "idle", target = 0, timeLeft, compact = false }: 
           <stop offset="1" stopColor="#FFF4C8" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <rect width="390" height="330" fill="#06120D" />
-      <rect y="64" width="390" height="76" fill="#0B1E16" />
-      <path d="M0 82H390M0 100H390M0 118H390" stroke="#13301F" />
+      <rect x="-400" width="1190" height="330" fill="#06120D" />
+      <rect x="-400" y="64" width="1190" height="76" fill="#0B1E16" />
+      <path d="M-400 82H790M-400 100H790M-400 118H790" stroke="#13301F" />
       <circle cx="44" cy="22" r="110" fill="url(#flood)" opacity="0.7" />
       <circle cx="346" cy="22" r="110" fill="url(#flood)" opacity="0.7" />
       <g fill="#FFF6D6" className="lamps-top">
@@ -113,10 +113,10 @@ export function Pitch({ shot = "idle", target = 0, timeLeft, compact = false }: 
       </g>
       <path d="M34 14V30M44 14V30M54 14V30M24 22H64M336 14V30M346 14V30M356 14V30M326 22H366" stroke="#06120D" strokeWidth="1.5" />
       {[[140, 12, 0], [152, 14, 1], [166, 17, 0], [183, 20, 1], [203, 24, 0], [227, 29, 1], [256, 35, 0], [291, 39, 1]].map(([y, h, b]) => (
-        <rect key={y} y={y} width="390" height={h} fill={b ? "#22703F" : "#1B5C34"} />
+        <rect key={y} x="-400" y={y} width="1190" height={h} fill={b ? "#22703F" : "#1B5C34"} />
       ))}
       <g stroke="#F3F5EF" strokeOpacity="0.75" strokeWidth="2" fill="none">
-        <path d="M0 140H390" />
+        <path d="M-400 140H790" />
         <path d="M92 140L80 162H310L298 140" />
         <path d="M40 140L4 226H386L350 140" />
         <path d="M150 226Q195 250 240 226" />
