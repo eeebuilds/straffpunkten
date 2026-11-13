@@ -44,7 +44,11 @@ export default function SignupForm({ title, intro, next, join, signedIn, onDone,
       lsSet("pending", { nickname: nick, consent, next, join });
       const { error } = await sb().auth.signInWithOtp({
         email: email.trim(),
-        options: { emailRedirectTo: window.location.origin + (join ? "/liga/" + join : next || "/") },
+        options: {
+          emailRedirectTo: window.location.origin + (join ? "/liga/" + join : next || "/"),
+          // Följer med kontot, så att smeknamn och dagens resultat sparas även om länken öppnas på en annan enhet.
+          data: { nickname: nick, consent, guest: guestId() },
+        },
       });
       if (error) throw error;
       track("signup_email_sent", { consent, source });

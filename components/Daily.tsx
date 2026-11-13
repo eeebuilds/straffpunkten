@@ -33,12 +33,17 @@ export default function Daily() {
   const deadline = useRef(0);
   const answering = useRef(false);
 
+  const loading = useRef(false);
   const load = useCallback(async () => {
+    if (loading.current) return;
+    loading.current = true;
     try {
       const s = await rpc<PlayState>("start_play", { p_game: GAME, p_guest: guestId() });
       setSt(s);
     } catch (e) {
       setError(errorText(e));
+    } finally {
+      loading.current = false;
     }
   }, []);
 
@@ -57,10 +62,11 @@ export default function Daily() {
   }, [load]);
 
   // Ladda om spelet när inloggningen ändras, så att gästspel flyttas över till kontot.
+  const userId = session === undefined ? undefined : session?.user.id ?? null;
   useEffect(() => {
-    if (session === undefined) return;
+    if (userId === undefined) return;
     load();
-  }, [session, load]);
+  }, [userId, load]);
 
   const nextQuestion = useCallback(async () => {
     if (!st) return;
