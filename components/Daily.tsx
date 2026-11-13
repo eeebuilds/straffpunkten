@@ -97,6 +97,8 @@ export default function Daily() {
     try {
       const a = await rpc<Omit<Answer, "choice">>("answer_question", { p_play: st.play_id, p_guest: guestId(), p_choice: choice });
       setAns({ ...a, choice });
+      // Kort vibration vid mål, två korta vid räddning. Saknas stöd (t.ex. iPhone) händer inget.
+      try { navigator.vibrate?.(a.correct ? [40, 30, 90] : [25, 60, 25]); } catch {}
       setSt(a.state);
       if (a.state.finished) track("play_finish", { score: a.state.score });
     } catch (e) {

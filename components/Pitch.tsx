@@ -2,9 +2,9 @@
    Bollen skjuts mot hörnet som motsvarar svaret (A uppe vänster, B uppe höger, C nere vänster, D nere höger).
    Rätt svar: mål i det hörnet. Fel svar: bollen går mot hörnet men räddas ut åt sidan. */
 
-const SEAMS =
+export const SEAMS =
   "M0 -6.2L0 -12.5M0 -12.5L8.3 -11.5M0 -12.5L-8.3 -11.5M5.9 -1.9L11.9 -3.9M11.9 -3.9L13.5 4.4M11.9 -3.9L8.3 -11.5M3.6 5L7.3 10.1M7.3 10.1L0 14.2M7.3 10.1L13.5 4.4M-3.6 5L-7.3 10.1M-7.3 10.1L-13.5 4.4M-7.3 10.1L0 14.2M-5.9 -1.9L-11.9 -3.9M-11.9 -3.9L-8.3 -11.5M-11.9 -3.9L-13.5 4.4";
-const PATCHES = [
+export const PATCHES = [
   "0,-6.2 5.9,-1.9 3.6,5 -3.6,5 -5.9,-1.9",
   "8.3,-11.5 5.9,-19.1 12.3,-23.8 18.8,-19.1 16.3,-11.5",
   "13.5,4.4 20,-0.3 26.4,4.4 24,12 16,12",
