@@ -23,7 +23,7 @@ Varje vecka tas cirka 80 nya frågor fram och verifieras automatiskt innan de ha
    Varje agent lämnar `godkänd`, `rättad` (med ändringen) eller `avvisad` (med skäl) och en käll-URL.
 4. **Besluta.** Bara frågor som båda verifierarna godkänner tas med. En `rättad` fråga måste godkännas av den andra verifieraren i sin rättade form. Oenighet = avvisad.
 5. **Lägg in.** Lägg till godkända frågor i `data/questions.json` med `checked_at` (dagens datum) och `source` (URL). Kör `node scripts/validate.mjs`.
-6. **Publicera.** Committa med en sammanfattning (antal skrivna, godkända, rättade, avvisade och skälen), pusha till `main` och anropa `https://straffpunkten.vercel.app/api/seed` när Vercel har byggt klart.
+6. **Publicera.** Committa med en sammanfattning (antal skrivna, godkända, rättade, avvisade och skälen) och pusha till `main`. Vercel bygger automatiskt, och ett nattligt Vercel-jobb (`vercel.json`, 02:40 UTC) anropar `/api/seed` som synkar banken till databasen. Vill du synka direkt kan du öppna `https://straffpunkten.vercel.app/api/seed` i webbläsaren.
 
 ## Rätta en fråga i efterhand
 
