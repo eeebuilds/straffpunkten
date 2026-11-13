@@ -5,7 +5,7 @@ Varje vecka tas cirka 80 nya frågor fram och verifieras automatiskt innan de ha
 ## Vilka frågor vi vill ha
 
 - Fotbollskunskap som håller över tid: historia, mästerskap, rekord, regler, legendariska spelare och klubbar.
-- **Inga färska resultat.** Inga matcher, tabeller eller övergångar från innevarande eller förra säsongen, inga "nuvarande" tränare, skador eller trupper. Sådant blir fel snabbt och ger inget mervärde.
+- **Bara avslutade säsonger och turneringar.** Färdigspelade säsonger går bra, även den senaste (till exempel 2025/26), men inget från en pågående säsong eller turnering. Inga "nuvarande" tränare, skador, trupper eller övergångsrykten. Uppgifter från de senaste två åren måste alltid verifieras med en daterad källa.
 - Uppgifter som kan ändras ("flest", "rekord") låses i tiden: "före VM 2026", "efter säsongen 2023/24".
 - Svårighetsfördelning ungefär 35 % lätta, 40 % medel, 25 % svåra. Rätt svar jämnt fördelat på A–D.
 - Stil: se `data/questions.json`. Korta frågor (max cirka 110 tecken), fyra rimliga alternativ av samma typ, en faktamening som tillför något.
