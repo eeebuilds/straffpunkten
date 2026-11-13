@@ -9,6 +9,7 @@ import { hms, msToNextDay, prettyDay, shortDay } from "@/lib/dates";
 import { useSession } from "./useSession";
 import SignupForm from "./SignupForm";
 import { DayBoard } from "./Leaderboard";
+import { Kicks, Pitch, type Shot } from "./Pitch";
 
 const TOTAL = 11;
 const LIMIT = 20000;
@@ -140,76 +141,99 @@ export default function Daily() {
   if (!q) return st.finished ? <Results st={st} session={session} /> : <Intro st={st} busy={busy} onStart={nextQuestion} error={error} />;
 
   const low = msLeft < 5000;
+  const sec = Math.ceil(msLeft / 1000);
+  const shot: Shot = ans ? (ans.correct ? "goal" : ans.late ? "late" : "save") : "aim";
+  const goalsNow = st.results.filter(Boolean).length;
   return (
-    <div className="q">
-      <Board st={st} current={ans ? -1 : q.index} />
-      <div className="q-meta">
-        <span>Straff {q.index + 1} av {TOTAL}</span>
-        <span>{q.category} · {["", "Lätt", "Medel", "Svår"][q.difficulty]}</span>
+    <div className="play">
+      <div className="kick-row">
+        <Kicks results={st.results} current={ans ? -1 : q.index} />
+        <b>{goalsNow} mål</b>
       </div>
-      <h2>{q.q}</h2>
-      <div className={`clock ${low ? "low" : ""}`} role="timer" aria-label={`${Math.ceil(msLeft / 1000)} sekunder kvar`}>
-        <i style={{ transform: `scaleX(${ans ? 0 : msLeft / LIMIT})` }} />
+      <div className="scene bleed">
+        <Pitch compact shot={shot} target={ans && ans.choice >= 0 ? ans.choice : 0} timeLeft={ans ? undefined : msLeft / LIMIT} />
+        {!ans && (
+          <span className={`timer ${low ? "low" : ""}`} role="timer" aria-label={`${sec} sekunder kvar`}>
+            0:{String(sec).padStart(2, "0")}
+          </span>
+        )}
+        {ans && (
+          <p className={`call ${ans.correct ? "" : "no"} ${ans.late ? "small" : ""}`} aria-live="polite">
+            {ans.correct ? "Mål!" : ans.late ? "Tiden ute" : "Räddad"}
+          </p>
+        )}
       </div>
-      <div className="opts">
-        {q.options.map((o, i) => {
-          let cls = "opt";
-          if (ans) cls += i === ans.answer ? " right" : i === ans.choice ? " wrong" : " dim";
-          return (
-            <button key={i} className={cls} disabled={!!ans} onClick={() => answer(i)}>
-              <span className="key">{KEYS[i]}</span>
-              <span className="txt">{o}</span>
-            </button>
-          );
-        })}
-      </div>
-      {ans && (
-        <div className="section" aria-live="polite">
-          <div className="verdict">
-            <b className={ans.correct ? "ok" : "no"}>{ans.correct ? "Mål!" : ans.late ? "Tiden ute" : "Räddad"}</b>
-            {ans.pct_correct != null && ans.answered_by > 1 && <span>{ans.pct_correct} % av dagens spelare satte den</span>}
-          </div>
-          {!ans.correct && <p className="result-line">Rätt svar: <strong>{q.options[ans.answer]}</strong></p>}
-          {ans.fact && <p className="fact">{ans.fact}</p>}
-          {ans.state.finished ? (
-            <button className="btn wide" onClick={() => { setQ(null); setAns(null); window.scrollTo(0, 0); }} autoFocus>
-              Se dagens resultat
-            </button>
-          ) : (
-            <button className="btn wide" onClick={nextQuestion} disabled={busy} autoFocus>
-              Nästa straff
-            </button>
-          )}
+      <section className="sheet">
+        <div className="q-meta">
+          <span>Straff {q.index + 1} av {TOTAL}</span>
+          <span>{q.category} · {["", "lätt", "medel", "svår"][q.difficulty]}</span>
         </div>
-      )}
-      {error && <p className="error" role="alert">{error}</p>}
+        <h2>{q.q}</h2>
+        <div className="opts">
+          {q.options.map((o, i) => {
+            let cls = "opt";
+            if (ans) cls += i === ans.answer ? " right" : i === ans.choice ? " wrong" : " dim";
+            return (
+              <button key={i} className={cls} disabled={!!ans} onClick={() => answer(i)}>
+                <span className="key">{KEYS[i]}</span>
+                <span className="txt">{o}</span>
+              </button>
+            );
+          })}
+        </div>
+        {!ans && <p className="hint-line">Svara innan klockan går ut, annars räddar målvakten.</p>}
+        {ans && (
+          <div className="after">
+            {!ans.correct && <p className="result-line">Rätt svar: <strong>{q.options[ans.answer]}</strong></p>}
+            {ans.pct_correct != null && ans.answered_by > 1 && (
+              <div className="pct">
+                <div className="pct-row"><span>{ans.pct_correct} % av dagens spelare satte den</span><span>{ans.answered_by} svar</span></div>
+                <div className="bar"><i style={{ width: `${ans.pct_correct}%` }} /></div>
+              </div>
+            )}
+            {ans.fact && <p className="fact">{ans.fact}</p>}
+            {ans.state.finished ? (
+              <button className="btn wide" onClick={() => { setQ(null); setAns(null); window.scrollTo(0, 0); }} autoFocus>
+                Se dagens resultat <Arrow />
+              </button>
+            ) : (
+              <button className="btn wide" onClick={nextQuestion} disabled={busy} autoFocus>
+                Nästa straff <Arrow />
+              </button>
+            )}
+          </div>
+        )}
+        {error && <p className="error" role="alert">{error}</p>}
+      </section>
     </div>
+  );
+}
+
+function Arrow() {
+  return (
+    <svg className="arr" viewBox="0 0 18 14" aria-hidden="true" style={{ width: 18, height: 14 }}>
+      <path d="M1 7h15M10 1l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </svg>
+  );
+}
+
+function Flame({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size * 0.875} height={size} viewBox="0 0 14 16" aria-hidden="true">
+      <path d="M7 1c1 3 5 5 5 9.5a5 5 0 0 1-10 0C2 8 3.5 6.5 4.5 5.5c0 2 1 3 2 3C6.5 6 5.5 3.5 7 1z" fill="var(--accent)" />
+    </svg>
   );
 }
 
 function Skeleton() {
   return (
-    <div className="hero" aria-busy="true">
-      <span className="kicker">Dagens straffpunkt</span>
-      <h1>Laddar…</h1>
-    </div>
-  );
-}
-
-function Board({ st, current }: { st: PlayState; current: number }) {
-  return (
-    <div className="board">
-      <div className="board-row">
-        <span className="board-label">Dagens straffpunkt</span>
-        <span className="board-num">{st.score}<span style={{ color: "var(--bulb-dim)" }}>/{TOTAL}</span></span>
+    <>
+      <div className="scene bleed"><Pitch /></div>
+      <div className="hero" aria-busy="true">
+        <span className="kicker">Dagens straffpunkt</span>
+        <h1>Laddar…</h1>
       </div>
-      <div className="lamps" aria-label={`${st.score} mål på ${st.results.length} straffar`}>
-        {Array.from({ length: TOTAL }, (_, i) => {
-          const r = st.results[i];
-          return <i key={i} className={`lamp ${r === true ? "ok" : r === false ? "no" : ""} ${i === current ? "now" : ""}`} />;
-        })}
-      </div>
-    </div>
+    </>
   );
 }
 
@@ -219,27 +243,46 @@ function Intro({ st, busy, onStart, error }: { st: PlayState; busy: boolean; onS
     rpc<Stats>("my_stats", { p_game: GAME, p_guest: guestId() }).then(setStats, () => {});
   }, []);
   const resumed = st.index > 0;
+  const played = !!stats && stats.played > 0;
   return (
     <>
+      <div className="scene bleed"><Pitch /></div>
       <div className="hero">
         <span className="kicker">{prettyDay(st.day)}</span>
-        <h1>Dagens straff&shy;punkt</h1>
-        <p>Elva frågor om fotboll, från lätt till svår. Varje rätt svar är ett mål. Alla får samma frågor, och du har en chans per dag.</p>
+        <h1>Dagens straffpunkt</h1>
+        <p>Elva straffar från lätt till svår, 20 sekunder per skott. Samma frågor för alla och en chans per dag.</p>
       </div>
-      <ul className="facts-list">
-        <li><b>11</b><span>straffar</span></li>
-        <li><b>20 s</b><span>per skott</span></li>
-        <li><b>{stats?.streak ? stats.streak : 1}</b><span>{stats?.streak ? "dagar i rad" : "chans per dag"}</span></li>
-      </ul>
-      {resumed && <Board st={st} current={st.index} />}
+      {resumed && (
+        <div className="kick-row">
+          <Kicks results={st.results} current={st.index} />
+          <b>{st.score} mål</b>
+        </div>
+      )}
       <button className="btn wide" onClick={onStart} disabled={busy}>
-        {resumed ? `Fortsätt med straff ${st.index + 1}` : "Ställ dig vid straffpunkten"}
+        {resumed ? `Fortsätt med straff ${st.index + 1}` : "Ställ dig vid straffpunkten"} <Arrow />
       </button>
       {resumed && <p className="note">Klockan gick vidare på straffen du lämnade. Den kan redan ha gått ut.</p>}
       {error && <p className="error" role="alert">{error}</p>}
-      <p className="note">
-        Vill du hellre spela mot en kompis på samma mobil? <a href="/klassisk.html#van">Möt en vän</a>.
-      </p>
+      <div className="tiles">
+        {played ? (
+          <>
+            <div className="tile">
+              <b className="hot">{stats!.streak} {stats!.streak === 1 ? "dag" : "dagar"}</b>
+              <span>{stats!.streak > 0 ? "i rad. Spela idag för att hålla sviten." : "i rad. Starta en ny svit idag."}</span>
+            </div>
+            <div className="tile">
+              <b>{stats!.best ?? "–"}/{TOTAL}</b>
+              <span>ditt bästa{stats!.avg != null ? `, snitt ${String(stats!.avg).replace(".", ",")}` : ""}.</span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="tile"><b className="hot">11</b><span>straffar, från lätt till svår.</span></div>
+            <div className="tile"><b>20 s</b><span>per skott. Tänk snabbt.</span></div>
+          </>
+        )}
+      </div>
+      <a href="/klassisk.html#van">Möt en vän på samma mobil</a>
     </>
   );
 }
@@ -321,24 +364,37 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
   return (
     <>
       <div className="hero">
-        <span className="kicker">{prettyDay(st.day)} · Dagens straffpunkt</span>
-        <div className="score-big"><b>{st.score}</b><span>/ {TOTAL} mål</span></div>
+        <span className="kicker">Dagens straffpunkt · {prettyDay(st.day)}</span>
+        <div className="score-big"><b>{st.score}</b><span>av {TOTAL}</span></div>
         <p className="result-line"><strong>{verdict}</strong>{" "}
-          {card && card.players > 1 && card.beaten_pct != null && <>Du slog {card.beaten_pct} % av dagens {card.players} spelare.</>}
+          {card && card.players > 1 && card.beaten_pct != null && <>Du slog <span className="hl">{card.beaten_pct} %</span> av dagens {card.players} spelare.</>}
         </p>
       </div>
-      <Board st={st} current={-1} />
+      <Kicks results={st.results} big />
 
       {saved && onBoard && <p className="ok-msg">Klart. Du är med på topplistan som <strong>{profile!.nickname}</strong>.</p>}
 
       <div className="btn-row">
-        <button className="btn yellow" onClick={share}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" aria-hidden="true"><path d="M12 15V3m0 0l-4 4m4-4l4 4M5 12v8h14v-8" /></svg>
-          Dela resultatet
+        <button className="btn" onClick={share}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 15V3m0 0l-4 4m4-4l4 4M5 12v8h14v-8" /></svg>
+          Dela
         </button>
-        <button className="btn line" onClick={copy}>Kopiera som text</button>
+        <button className="btn line" onClick={copy}>Kopiera text</button>
       </div>
       {shareMsg && <p className="note" style={{ whiteSpace: "pre-line" }}>{shareMsg}</p>}
+
+      <div className="streak-card">
+        {stats && stats.played > 0 && (
+          <div className="streak-head">
+            <Flame size={30} />
+            <div>
+              <b>{stats.streak} {stats.streak === 1 ? "dag" : "dagar"} i rad</b>
+              <span>Ditt rekord är {stats.best_streak}. Kom tillbaka i morgon.</span>
+            </div>
+          </div>
+        )}
+        <p>Nya straffar om <strong>{hms(left)}</strong>. Spela mot kompisarna i en egen <Link href="/ligor">liga</Link>.</p>
+      </div>
 
       {profile === null && (
         <SignupForm
@@ -377,11 +433,6 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
           )}
         </div>
       )}
-
-      <div className="section">
-        <div className="section-head"><h3>Nästa straffpunkt</h3><span>om {hms(left)}</span></div>
-        <p className="note">Nya frågor varje natt vid midnatt. Spela mot kompisarna varje dag i en egen <Link href="/ligor">liga</Link>.</p>
-      </div>
 
       {review && (
         <div className="section">

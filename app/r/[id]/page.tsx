@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { serverRpc, type Card } from "@/lib/server";
+import { Kicks, Pitch } from "@/components/Pitch";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -27,6 +28,7 @@ export default async function SharedResult({ params }: Props) {
   const card = await getCard(id);
   return (
     <main className="page">
+      <div className="scene bleed"><Pitch /></div>
       <div className="hero">
         <span className="kicker">Utmaning</span>
         <h1>{card ? `${card.score} av 11` : "Straffpunkten"}</h1>
@@ -37,11 +39,7 @@ export default async function SharedResult({ params }: Props) {
         </p>
       </div>
       {card && (
-        <div className="board">
-          <div className="lamps">
-            {card.results.map((r, i) => <i key={i} className={`lamp ${r ? "ok" : "no"}`} />)}
-          </div>
-        </div>
+        <Kicks results={card.results} big />
       )}
       <Link href="/" className="btn wide">Ta dagens straffar</Link>
       <p className="note">Elva frågor från lätt till svår. 20 sekunder per skott. Samma frågor för alla, en chans per dag.</p>

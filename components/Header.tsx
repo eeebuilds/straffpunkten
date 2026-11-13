@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Ball } from "./Pitch";
 
 const LINKS: { href: string; label: string; sub: string }[] = [
   { href: "/", label: "Dagens straffpunkt", sub: "11 frågor" },
@@ -43,7 +44,7 @@ export default function Header() {
             window.scrollTo(0, 0);
           }}
         >
-          <span className="brand-mark" aria-hidden="true" />
+          <Ball size={22} id="logo" />
           <b>Straffpunkten</b>
         </Link>
         <button className="menu-btn" aria-label="Öppna menyn" aria-expanded={open} onClick={() => setOpen(true)}>
