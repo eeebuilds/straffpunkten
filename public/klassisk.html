@@ -48,7 +48,7 @@ body {
   font-family: var(--body);
   font-size: 16px;
   line-height: 1.5;
-  padding-block: 24px 48px;
+  padding-block: 16px calc(120px + env(safe-area-inset-bottom, 0px));
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
@@ -120,25 +120,26 @@ h1 {
   line-height: 1.08; margin: 0; text-wrap: balance;
 }
 .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-@media (max-width: 480px) { .opts { grid-template-columns: 1fr; } }
+@media (max-width: 340px) { .opts { grid-template-columns: 1fr; } }
 .opt {
-  display: flex; align-items: center; gap: 12px; text-align: left;
-  font: 500 1rem/1.3 var(--body); color: var(--ink);
-  background: var(--surface); border: 2px solid var(--line); border-radius: 6px;
-  padding: 14px; cursor: pointer; min-height: 60px;
-  transition: border-color .15s, transform .15s, background .15s;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; min-width: 0;
+  font: 600 1rem/1.25 var(--body); color: var(--ink); overflow-wrap: anywhere;
+  background: var(--surface); border: 2px solid var(--line); border-radius: 4px;
+  padding: 10px 12px 12px; cursor: pointer; min-height: 84px; box-shadow: 0 2px 0 var(--line);
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  transition: border-color .12s, transform .08s, box-shadow .08s;
 }
-.opt:hover:not(:disabled) { border-color: var(--pitch); transform: translateY(-1px); }
+.opt:hover:not(:disabled) { border-color: var(--ink); box-shadow: 0 2px 0 var(--ink); }
+.opt:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
 .opt:focus-visible { outline: 3px solid var(--card); outline-offset: 2px; }
 .opt kbd {
-  flex: none; width: 28px; height: 28px; display: grid; place-items: center;
-  font: 700 .85rem var(--mono); color: var(--muted); border: 1.5px solid var(--line); border-radius: 50%;
+  font: 700 .78rem var(--mono); color: var(--muted); border: 0;
 }
 .opt:disabled { cursor: default; }
 .opt.right { border-color: var(--good); background: var(--good-bg); }
-.opt.right kbd { border-color: var(--good); color: var(--good); }
+.opt.right kbd { color: var(--good); }
 .opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
-.opt.wrong kbd { border-color: var(--bad); color: var(--bad); }
+.opt.wrong kbd { color: var(--bad); }
 .opt.dim { opacity: .55; }
 
 .fact {
@@ -154,9 +155,12 @@ h1 {
 
 .actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
 .btn {
-  font: 800 1.15rem/1 var(--display); letter-spacing: .06em; text-transform: uppercase;
-  background: var(--pitch); color: var(--bg); border: 0; border-radius: 6px; padding: 14px 22px; cursor: pointer;
+  font: 800 1.2rem/1 var(--display); letter-spacing: .05em; text-transform: uppercase; min-height: 54px;
+  background: var(--pitch); color: var(--bg); border: 0; border-radius: 4px; padding: 0 22px; cursor: pointer;
+  box-shadow: inset 0 -4px 0 rgb(0 0 0 / .28); transition: transform .08s, box-shadow .08s;
 }
+.btn:active { transform: translateY(2px); box-shadow: inset 0 -2px 0 rgb(0 0 0 / .28); }
+.actions .btn { flex: 1 1 200px; }
 .btn.ghost { background: transparent; color: var(--pitch); box-shadow: inset 0 0 0 2px var(--pitch); }
 .btn:focus-visible { outline: 3px solid var(--card); outline-offset: 2px; }
 .hint { font-size: .85rem; color: var(--muted); margin: 0; }
@@ -177,7 +181,19 @@ h1 {
 .rules li::marker { color: var(--pitch); }
 
 /* Filter (träning) */
-.filters { display: flex; flex-direction: column; gap: 10px; }
+.filters { position: relative; }
+.filters summary {
+  list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer;
+  min-height: 48px; padding: 0 14px; border: 2px solid var(--ink); border-radius: 4px; background: var(--surface);
+  font: 800 1.05rem var(--display); letter-spacing: .05em; text-transform: uppercase;
+}
+.filters summary::-webkit-details-marker { display: none; }
+.filters summary small { font: 500 .85rem var(--body); text-transform: none; letter-spacing: 0; color: var(--muted); flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.filters summary svg { width: 22px; height: 22px; flex: none; }
+.filters[open] summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.filters .panel { display: flex; flex-direction: column; gap: 14px; padding: 14px; border: 2px solid var(--ink); border-top: 0; border-radius: 0 0 4px 4px; background: var(--surface); }
+.back { font: 600 .85rem var(--body); color: var(--muted); text-decoration: none; }
+.back:hover { color: var(--ink); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chips span.lbl { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); align-self: center; margin-right: 4px; min-width: 64px; }
 .chip {
@@ -214,6 +230,7 @@ footer { font-size: .78rem; color: var(--muted); border-top: 1px solid var(--lin
 </style>
 
 <div class="wrap">
+  <a class="back" href="/">← Dagens straffpunkt</a>
   <header>
     <h1>Straffpunkten</h1>
     <div class="modes" role="group" aria-label="Spelläge">
@@ -222,10 +239,17 @@ footer { font-size: .78rem; color: var(--muted); border-top: 1px solid var(--lin
     </div>
   </header>
 
-  <div class="filters" id="filters" hidden>
-    <div class="chips" id="cats" role="group" aria-label="Kategori"></div>
-    <div class="chips" id="lvls" role="group" aria-label="Svårighetsgrad"></div>
-  </div>
+  <details class="filters" id="filters" hidden>
+    <summary>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="square" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h12"/></svg>
+      <small id="filterLabel">Alla kategorier · Alla nivåer</small>
+      <span>Välj</span>
+    </summary>
+    <div class="panel">
+      <div class="chips" id="cats" role="group" aria-label="Kategori"></div>
+      <div class="chips" id="lvls" role="group" aria-label="Svårighetsgrad"></div>
+    </div>
+  </details>
 
   <div class="board" id="board" aria-live="polite"></div>
   <div class="progress" id="progress" hidden></div>
@@ -296,11 +320,12 @@ function lockOptions(q, i) {
 }
 
 /* ---------- Läge ---------- */
-let mode = ls("mode") === "train" ? "train" : "shoot";
+let mode = location.hash === "#traning" ? "train" : location.hash === "#van" ? "shoot" : ls("mode") === "train" ? "train" : "shoot";
 let state = { answered: false, onAnswer: null, onNext: null };
 
 function setMode(m) {
   mode = m; ls("mode", m);
+  try { history.replaceState(null, "", m === "train" ? "#traning" : "#van"); } catch (e) {}
   $("modeShoot").setAttribute("aria-pressed", m === "shoot");
   $("modeTrain").setAttribute("aria-pressed", m === "train");
   $("filters").hidden = m !== "train";
@@ -501,11 +526,13 @@ function renderFilters() {
     `<button class="chip" data-c="${esc(c)}" aria-pressed="${c === cat}">${esc(c)}<small>${count(c)}</small></button>`).join("");
   $("lvls").innerHTML = `<span class="lbl">Nivå</span>` + [[0, "Alla"], [1, "Lätt"], [2, "Medel"], [3, "Svår"]].map(([v, t]) =>
     `<button class="chip" data-l="${v}" aria-pressed="${v === lvl}">${t}</button>`).join("");
-  $("cats").querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => { cat = b.dataset.c; renderFilters(); newTraining(); }));
+  $("filterLabel").textContent = (cat === "Alla" ? "Alla kategorier" : cat) + " · " + ["Alla nivåer", "Lätt", "Medel", "Svår"][lvl];
+  const close = () => { $("filters").open = false; };
+  $("cats").querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => { cat = b.dataset.c; renderFilters(); newTraining(); close(); }));
   $("lvls").querySelectorAll(".chip").forEach(b => b.addEventListener("click", () => {
     lvl = +b.dataset.l;
     if (count(cat) < 4) cat = "Alla";
-    renderFilters(); newTraining();
+    renderFilters(); newTraining(); close();
   }));
 }
 
