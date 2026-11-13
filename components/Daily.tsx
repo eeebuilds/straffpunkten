@@ -42,6 +42,20 @@ export default function Daily() {
     }
   }, []);
 
+  // Klick på logotypen: tillbaka till startvyn. Servern håller ställningen och klockan,
+  // så ett påbörjat spel fortsätter där det var ("Fortsätt med straff N").
+  useEffect(() => {
+    const onHome = () => {
+      setQ(null);
+      setAns(null);
+      setError(null);
+      answering.current = false;
+      load();
+    };
+    window.addEventListener("straffpunkten:home", onHome);
+    return () => window.removeEventListener("straffpunkten:home", onHome);
+  }, [load]);
+
   // Ladda om spelet när inloggningen ändras, så att gästspel flyttas över till kontot.
   useEffect(() => {
     if (session === undefined) return;

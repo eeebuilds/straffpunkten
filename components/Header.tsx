@@ -31,7 +31,18 @@ export default function Header() {
   return (
     <header className="top">
       <div className="top-in">
-        <Link href="/" className="brand" aria-label="Straffpunkten, till dagens spel">
+        <Link
+          href="/"
+          className="brand"
+          aria-label="Straffpunkten, till dagens spel"
+          onClick={e => {
+            // På startsidan gör en länk till samma sida ingenting, så vi ber spelet börja om i stället.
+            if (path !== "/") return;
+            e.preventDefault();
+            window.dispatchEvent(new Event("straffpunkten:home"));
+            window.scrollTo(0, 0);
+          }}
+        >
           <span className="brand-mark" aria-hidden="true" />
           <b>Straffpunkten</b>
         </Link>
