@@ -100,6 +100,19 @@ button, input { font: inherit; color: inherit; }
 .btn:hover .arr { transform: translateX(3px); }
 .btn-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
 .btn-row .btn { width: auto; }
+.challenge-title { font-size: clamp(2rem, 7.5vw, 2.8rem); text-wrap: balance; }
+.league-pitch {
+  display: flex; flex-direction: column; gap: 14px; padding: 24px;
+  border: 2px solid var(--ink); border-top: 7px solid var(--green);
+  border-radius: 14px; background: var(--green-bg); box-shadow: var(--shadow); margin-right: 4px;
+}
+.league-pitch h2 { margin: 0; font-size: clamp(1.55rem, 6vw, 2rem); line-height: 1.15; text-wrap: balance; }
+.league-pitch p { margin: 0; }
+.league-secondary { align-self: center; padding: 10px 0; text-align: center; }
+.league-steps { padding-left: 24px; margin: 0; display: grid; gap: 10px; }
+.league-steps li::marker { color: var(--green); font-weight: 900; }
+.share-feedback { white-space: pre-line; overflow-wrap: anywhere; }
+#skapa { scroll-margin-top: 80px; }
 .link { background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 2px; color: var(--green); font-weight: 700; }
 .or { display: flex; align-items: center; gap: 12px; margin: 0; font-size: .85rem; color: var(--muted); }
 .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--rule); }

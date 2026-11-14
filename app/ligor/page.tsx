@@ -18,6 +18,7 @@ export default function Ligor() {
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     if (session === undefined) return;
@@ -28,30 +29,44 @@ export default function Ligor() {
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
+    if (creating || name.trim().length < 2) return;
+    setCreating(true);
     setError(null);
     try {
-      const l = await rpc<{ code: string }>("create_league", { p_game: GAME, p_name: name });
+      const l = await rpc<{ code: string }>("create_league", { p_game: GAME, p_name: name.trim() });
       track("league_create");
       router.push("/liga/" + l.code);
     } catch (err) { setError(errorText(err)); }
+    finally { setCreating(false); }
   }
 
   function join(e: React.FormEvent) {
     e.preventDefault();
     const c = code.trim().toUpperCase();
-    if (c.length >= 4) router.push("/liga/" + c);
+    if (/^[A-Z0-9]{4,8}$/.test(c)) router.push("/liga/" + c);
+    else setError("Skriv ligakoden med 4–8 bokstäver eller siffror.");
   }
 
   return (
     <main className="page">
       <div className="hero">
-        <span className="kicker">Spela mot gänget</span>
-        <h1>Ligor</h1>
-        <p>Samla kompisarna, jobbet eller laget i en egen liga. Alla spelar dagens straffpunkt som vanligt, och ligan får en egen topplista för dagen och veckan.</p>
+        <span className="kicker">Kompisligor · Tävla om veckan</span>
+        <h1>Vem kan mest fotboll i kompisgänget?</h1>
+        <p>Gruppchatten har åsikter. Nu får den en topplista. Samla kompisarna, kollegorna eller laget i en egen liga.</p>
       </div>
 
-      {session === null || profile === null ? (
-        <SignupForm source="leagues" signedIn={!!session} title="Skapa konto först" intro="Ligor kräver ett smeknamn, så att alla vet vem som leder." next="/ligor" onDone={() => location.reload()} />
+      <ol className="league-steps" aria-label="Så fungerar en kompisliga">
+        <li><strong>Starta en liga.</strong> Ge gängets topplista ett namn.</li>
+        <li><strong>Skicka länken i gruppchatten.</strong> Kompisarna går med via sin inloggning.</li>
+        <li><strong>Spela dagens elva frågor.</strong> Alla får samma quiz. Följ vem som leder dagen och veckan.</li>
+      </ol>
+
+      {session === undefined || profile === undefined ? (
+        <p className="empty" role="status">Hämtar dina ligor…</p>
+      ) : session === null || profile === null ? (
+        <div id="skapa">
+          <SignupForm source="leagues" signedIn={!!session} title="Samla gänget i en egen liga" intro="Välj ett smeknamn och logga in för att starta ligan. Inget lösenord behövs." next="/ligor#skapa" onDone={() => location.reload()} />
+        </div>
       ) : (
         <>
           {leagues && leagues.length > 0 && (
@@ -64,14 +79,14 @@ export default function Ligor() {
               </ul>
             </div>
           )}
-          <form className="save" onSubmit={create}>
-            <h3>Starta en liga</h3>
+          <form id="skapa" className="save" onSubmit={create} aria-busy={creating}>
+            <h3>Vad heter gängets liga?</h3>
             <div className="field">
               <label htmlFor="lname">Namn på ligan</label>
-              <input id="lname" value={name} onChange={e => setName(e.target.value)} maxLength={40} placeholder="T.ex. Fredagsfotbollen" />
+              <input id="lname" value={name} onChange={e => setName(e.target.value)} maxLength={40} placeholder="T.ex. Soffexperterna" required minLength={2} />
             </div>
-            <button className="btn wide" disabled={name.trim().length < 2}>Skapa ligan</button>
-            <p className="note">Du får en kod och en länk att skicka till gänget.</p>
+            <button className="btn wide" disabled={creating || name.trim().length < 2}>{creating ? "Skapar ligan…" : "Skapa liga och bjud in gänget"}</button>
+            <p className="note">Nästa steg: kopiera inbjudan och skicka den i gruppchatten.</p>
           </form>
         </>
       )}

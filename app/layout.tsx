@@ -9,13 +9,13 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://straffpunkten.vercel.a
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
   title: "Straffpunkten – dagens fotbollsquiz",
-  description: "11 nya fotbollsfrågor varje dag. En straff per fråga, 20 sekunder på dig. Samma frågor för alla, en chans per dag.",
+  description: "Vem kan mest fotboll i kompisgänget? Spela dagens 11 frågor, starta en egen liga och utmana kompisarna om veckans topplista.",
   applicationName: "Straffpunkten",
   // På iPhone: helskärm från hemskärmen, mörk statusrad och kort namn under ikonen.
   appleWebApp: { capable: true, title: "Straffpunkten", statusBarStyle: "black-translucent" },
   openGraph: {
-    title: "Straffpunkten – dagens fotbollsquiz",
-    description: "11 straffar. 20 sekunder per skott. Samma frågor för alla, en chans per dag.",
+    title: "Vem kan mest fotboll i kompisgänget? | Straffpunkten",
+    description: "Samma quiz. Egen liga. Spela dagens 11 frågor och tävla med gänget om veckan.",
     locale: "sv_SE",
     type: "website",
   },

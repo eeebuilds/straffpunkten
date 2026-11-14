@@ -8,6 +8,7 @@ import { errorText } from "@/lib/errors";
 import { hms, msToNextDay, prettyDay, shortDay } from "@/lib/dates";
 import { useSession } from "./useSession";
 import SignupForm from "./SignupForm";
+import LeaguePitch from "./LeaguePitch";
 import { AllBoard, DayBoard } from "./Leaderboard";
 import { Ball, Kicks, Pitch, type Shot } from "./Pitch";
 
@@ -262,12 +263,12 @@ function Intro({ st, busy, onStart, error }: { st: PlayState; busy: boolean; onS
   const played = !!stats && stats.played > 0;
   return (
     <>
-      <div className="scene"><Pitch /></div>
       <div className="hero">
-        <span className="kicker">{cap(prettyDay(st.day))}</span>
-        <h1>Dagens straffpunkt</h1>
-        <p>Elva straffar från lätt till svår, 20 sekunder per skott. Samma frågor för alla och en chans per dag.</p>
+        <span className="kicker">Dagens straffpunkt · {cap(prettyDay(st.day))}</span>
+        <h1 className="challenge-title">Vem kan mest fotboll i kompisgänget?</h1>
+        <p>Elva fotbollsfrågor. Samma utmaning för alla. Spela själv först och låt sedan gängets topplista avgöra.</p>
       </div>
+      <div className="scene"><Pitch /></div>
       {resumed && (
         <div className="kick-row">
           <Kicks results={st.results} current={st.index} />
@@ -275,8 +276,9 @@ function Intro({ st, busy, onStart, error }: { st: PlayState; busy: boolean; onS
         </div>
       )}
       <button className="btn wide" onClick={onStart} disabled={busy}>
-        {resumed ? `Fortsätt med straff ${st.index + 1}` : "Ställ dig vid straffpunkten"} <Arrow />
+        {resumed ? `Fortsätt med straff ${st.index + 1}` : "Spela dagens 11 frågor"} <Arrow />
       </button>
+      {!resumed && <p className="note">Inget konto behövs för att spela. 20 sekunder per fråga, en chans per dag.</p>}
       {resumed && <p className="note">Klockan gick vidare på straffen du lämnade. Den kan redan ha gått ut.</p>}
       {error && <p className="error" role="alert">{error}</p>}
       <div className="tiles">
@@ -304,7 +306,8 @@ function Intro({ st, busy, onStart, error }: { st: PlayState; busy: boolean; onS
           </>
         )}
       </div>
-      <a href="/klassisk.html#van">Möt en vän på samma mobil</a>
+      <LeaguePitch source="intro" />
+      <a href="/klassisk.html#van">På samma mobil? Möt en vän här</a>
     </>
   );
 }
@@ -318,6 +321,7 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
   const [shareMsg, setShareMsg] = useState<string | null>(null);
   const [refresh, setRefresh] = useState(0);
   const [saved, setSaved] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   useEffect(() => {
     rpc<Card>("result_card", { p_play: st.play_id }).then(setCard, () => {});
@@ -337,21 +341,18 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
     return () => clearInterval(t);
   }, []);
 
-  const url = `${window.location.origin}/r/${st.play_id}`;
+  const url = `${window.location.origin}/r/${st.play_id}?utm_source=spelare&utm_medium=delning&utm_campaign=kompisutmaning`;
   const grid = st.results.map(r => (r ? "🟢" : "🔴")).join("");
-  const text = `Straffpunkten ${shortDay(st.day)}: ${st.score}/${TOTAL}\n${grid}`;
+  const text = `Jag fick ${st.score} av ${TOTAL} på Straffpunkten ${shortDay(st.day)}. Slår du mig?\n${grid}\nVem kan mest fotboll i kompisgänget?`;
 
   async function share() {
+    if (sharing) return;
+    setSharing(true);
+    setShareMsg(null);
     track("share_click", { score: st.score });
     try {
-      const res = await fetch(`/api/card/${st.play_id}`);
-      const blob = await res.blob();
-      const file = new File([blob], `straffpunkten-${st.day}.png`, { type: "image/png" });
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], text: `${text}\n${url}` });
-        track("share_done", { kind: "image" });
-        return;
-      }
+      // Öppna delningsmenyn direkt från trycket, även i Safari.
+      // Länkens förhandsvisning använder den befintliga delningsbilden.
       if (navigator.share) {
         await navigator.share({ text, url });
         track("share_done", { kind: "link" });
@@ -359,8 +360,10 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
       }
     } catch (e) {
       if (e instanceof Error && e.name === "AbortError") return;
+    } finally {
+      setSharing(false);
     }
-    copy();
+    await copy();
   }
 
   async function copy() {
@@ -400,13 +403,15 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
       {saved && onBoard && <p className="ok-msg">Klart. Du är med på topplistan som <strong>{profile!.nickname}</strong>.</p>}
 
       <div className="btn-row">
-        <button className="btn" onClick={share}>
+        <button className="btn" onClick={share} disabled={sharing}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 15V3m0 0l-4 4m4-4l4 4M5 12v8h14v-8" /></svg>
-          Dela
+          {sharing ? "Förbereder…" : "Utmana en kompis"}
         </button>
         <button className="btn line" onClick={copy}>Kopiera text</button>
       </div>
-      {shareMsg && <p className="note" style={{ whiteSpace: "pre-line" }}>{shareMsg}</p>}
+      {shareMsg && <p className="note share-feedback" role="status">{shareMsg}</p>}
+
+      <LeaguePitch source="result" />
 
       <div className="streak-card">
         <span className="stub"><Flame size={26} color="var(--paper)" /></span>
@@ -423,8 +428,8 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
         <SignupForm
           source="result"
           signedIn={!!session}
-          title="Kom med på topplistan"
-          intro={`Du satte ${st.score} av ${TOTAL}. Spara resultatet, håll koll på din svit och se var du hamnar mot alla andra.`}
+          title="Låt gänget se ditt resultat"
+          intro={`Du satte ${st.score} av ${TOTAL}. Välj ett smeknamn så syns du på topplistan. Sedan kan du tävla med kompisarna i en egen liga.`}
           onDone={() => setRefresh(r => r + 1)}
         />
       )}
