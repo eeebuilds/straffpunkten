@@ -57,3 +57,33 @@ export function WeekBoard({ monday, league, limit = 50 }: { monday: string; leag
     </table>
   );
 }
+
+type AllRow = { rank: number; nickname: string; score: number; days: number; avg: number | null; is_me: boolean };
+
+/** Topplista över alla dagar: flest mål totalt, vid lika högst snitt. */
+export function AllBoard({ league, limit = 50, refresh = 0 }: { league?: string | null; limit?: number; refresh?: number }) {
+  const [rows, setRows] = useState<AllRow[] | null>(null);
+  useEffect(() => {
+    setRows(null);
+    rpc<AllRow[]>("leaderboard_all", { p_game: GAME, p_league: league ?? null, p_limit: limit })
+      .then(setRows, () => setRows([]));
+  }, [league, limit, refresh]);
+  if (!rows) return <p className="empty">Hämtar topplistan…</p>;
+  if (!rows.length) return <p className="empty">Ingen har tagit plats på listan än. Välj ett smeknamn så hamnar du här.</p>;
+  return (
+    <table className="table">
+      <thead><tr><th>#</th><th>Spelare</th><th className="r">Dagar</th><th className="r">Snitt</th><th className="r">Mål</th></tr></thead>
+      <tbody>
+        {rows.map((r, i) => (
+          <tr key={i} className={r.is_me ? "me" : undefined}>
+            <td className="pos">{r.rank}</td>
+            <td className="name">{r.nickname}</td>
+            <td className="r">{r.days}</td>
+            <td className="r">{r.avg != null ? String(r.avg).replace(".", ",") : "–"}</td>
+            <td className="r score">{r.score}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}

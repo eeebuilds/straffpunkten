@@ -3,7 +3,7 @@ import { use, useEffect, useState } from "react";
 import { rpc } from "@/lib/sb";
 import { useSession } from "@/components/useSession";
 import SignupForm from "@/components/SignupForm";
-import { DayBoard, WeekBoard } from "@/components/Leaderboard";
+import { AllBoard, DayBoard, WeekBoard } from "@/components/Leaderboard";
 import { mondayOf, todaySE } from "@/lib/dates";
 import { errorText } from "@/lib/errors";
 import { track } from "@/lib/track";
@@ -15,7 +15,7 @@ export default function Liga({ params }: { params: Promise<{ code: string }> }) 
   const session = useSession();
   const [info, setInfo] = useState<Info | null | undefined>(undefined);
   const [profile, setProfile] = useState<unknown>(undefined);
-  const [tab, setTab] = useState<"day" | "week">("week");
+  const [tab, setTab] = useState<"day" | "week" | "all">("week");
   const [msg, setMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,8 +77,11 @@ export default function Liga({ params }: { params: Promise<{ code: string }> }) 
       <div className="tabs" role="group" aria-label="Period">
         <button aria-pressed={tab === "day"} onClick={() => setTab("day")}>Idag</button>
         <button aria-pressed={tab === "week"} onClick={() => setTab("week")}>Veckan</button>
+        <button aria-pressed={tab === "all"} onClick={() => setTab("all")}>Totalt</button>
       </div>
-      {tab === "day" ? <DayBoard day={today} league={info.id} /> : <WeekBoard monday={mondayOf(today)} league={info.id} />}
+      {tab === "day" && <DayBoard day={today} league={info.id} />}
+      {tab === "week" && <WeekBoard monday={mondayOf(today)} league={info.id} />}
+      {tab === "all" && <AllBoard league={info.id} />}
     </main>
   );
 }

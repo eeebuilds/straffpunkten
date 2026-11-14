@@ -8,7 +8,7 @@ import { errorText } from "@/lib/errors";
 import { hms, msToNextDay, prettyDay, shortDay } from "@/lib/dates";
 import { useSession } from "./useSession";
 import SignupForm from "./SignupForm";
-import { DayBoard } from "./Leaderboard";
+import { AllBoard, DayBoard } from "./Leaderboard";
 import { Ball, Kicks, Pitch, type Shot } from "./Pitch";
 
 const TOTAL = 11;
@@ -439,6 +439,11 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
       <div className="section">
         <div className="section-head"><h2>Topplistan idag</h2><Link href="/topplista">Hela listan</Link></div>
         <DayBoard day={st.day} limit={10} refresh={refresh} />
+      </div>
+
+      <div className="section">
+        <div className="section-head"><h2>Topplistan totalt</h2><Link href="/topplista">Alla dagar</Link></div>
+        <AllBoard limit={10} refresh={refresh} />
       </div>
 
       {stats && stats.played > 0 && (
