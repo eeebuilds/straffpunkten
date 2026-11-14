@@ -146,6 +146,20 @@ button, input { font: inherit; color: inherit; }
 @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
 @keyframes ripple { 0%, 100% { transform: scaleY(1); } 40% { transform: scaleY(1.05); } }
 
+/* Målvakten gungar i sidled medan klockan går och dyker när skottet går */
+.pitch .k-ready { transform-box: view-box; animation: sway 1.5s ease-in-out infinite alternate; }
+.pitch .k-dive { opacity: 0; transform-box: view-box; transform-origin: 0 0; }
+.pitch.shot-goal .k-ready, .pitch.shot-save .k-ready { animation: hide .1s forwards; }
+.pitch.shot-goal .k-dive, .pitch.shot-save .k-dive { animation: dive .45s cubic-bezier(.25, .7, .3, 1) forwards; }
+.pitch.shot-late .k-ready { animation: none; }
+@keyframes sway { from { transform: translateX(-3px); } to { transform: translateX(3px); } }
+@keyframes hide { to { opacity: 0; } }
+@keyframes dive {
+  0% { opacity: 0; transform: translate(195px, 104px) scale(var(--ksx), 1) rotate(-80deg); }
+  12% { opacity: 1; }
+  100% { opacity: 1; transform: translate(var(--kx), var(--ky)) scale(var(--ksx), 1) rotate(var(--kr)); }
+}
+
 /* Stämpel: MÅL! / RÄDDAD / TIDEN UTE */
 .scene .call {
   position: absolute; left: 12px; bottom: 14px; margin: 0; line-height: 1;
@@ -350,5 +364,7 @@ button, input { font: inherit; color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   .btn, .opt { transition: none; }
   .btn:active, .opt:active:not(:disabled) { transform: none; }
-  .pitch .ball, .pitch .trail, .pitch .netfill, .scene .call { animation-duration: .01s !important; animation-delay: 0s !important; }
+  .pitch .ball, .pitch .trail, .pitch .netfill, .pitch .k-dive, .pitch .k-ready, .scene .call { animation-duration: .01s !important; animation-delay: 0s !important; }
+  .pitch .k-ready { animation: none !important; }
+  .pitch.shot-goal .k-ready, .pitch.shot-save .k-ready { opacity: 0; }
 }

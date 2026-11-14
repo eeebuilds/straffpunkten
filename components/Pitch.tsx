@@ -77,6 +77,74 @@ const SPOT = { x: 195, y: 260 };
 
 export type Shot = "aim" | "goal" | "save" | "late" | "idle";
 
+/* ---------- Målvakten: platt retrofigur med tryckt kontur ---------- */
+const INK = "#1E2A22";
+const KIT = "#B6422F";
+const GLOVE = "#F4EBD9";
+const SKIN = "#C98C5A";
+
+/** En arm eller ett ben: mörk kontur under och tröjfärg ovanpå. */
+function Limb({ d, w }: { d: string; w: number }) {
+  return (
+    <>
+      <path d={d} stroke={INK} strokeWidth={w + 2.4} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d={d} stroke={KIT} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </>
+  );
+}
+
+/** Redo i knäböj, fötterna i (0,0). */
+function KeeperReady() {
+  return (
+    <>
+      <ellipse cx="0" cy="0.5" rx="13" ry="2" fill={INK} fillOpacity="0.25" />
+      <Limb d="M-3 -17L-8 -9L-9 -2" w={4.6} />
+      <Limb d="M3 -17L8 -9L9 -2" w={4.6} />
+      <ellipse cx="-10" cy="-1" rx="3.2" ry="1.7" fill={INK} />
+      <ellipse cx="10" cy="-1" rx="3.2" ry="1.7" fill={INK} />
+      <rect x="-7.5" y="-24" width="15" height="9" rx="2.2" fill={INK} />
+      <Limb d="M-7 -34Q-13 -31 -17.5 -25" w={4} />
+      <Limb d="M7 -34Q13 -31 17.5 -25" w={4} />
+      <path d="M-8 -37.5Q0 -40 8 -37.5L7.6 -21.5H-7.6Z" fill={KIT} stroke={INK} strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M-3 -38.3L0 -34.5L3 -38.3" stroke={GLOVE} strokeWidth="1.4" fill="none" strokeLinecap="round" />
+      <circle cx="-18" cy="-24.5" r="3.3" fill={GLOVE} stroke={INK} strokeWidth="1.2" />
+      <circle cx="18" cy="-24.5" r="3.3" fill={GLOVE} stroke={INK} strokeWidth="1.2" />
+      <circle cx="0" cy="-43" r="4.8" fill={SKIN} stroke={INK} strokeWidth="1.2" />
+      <path d="M-4.6 -44A4.8 4.8 0 0 1 4.6 -44Q0 -46 -4.6 -44Z" fill={INK} />
+    </>
+  );
+}
+
+/** Utsträckt i en dykning åt höger, höften i (0,0). Handskarna når ungefär (32,-5). */
+function KeeperDive() {
+  return (
+    <>
+      <Limb d="M-1 -1.5L-10 -3.5L-18.5 -2" w={4.6} />
+      <Limb d="M-1 2L-10 4L-18 7.5" w={4.6} />
+      <ellipse cx="-20" cy="-2" rx="1.8" ry="3.2" fill={INK} />
+      <ellipse cx="-19.5" cy="8" rx="1.8" ry="3.2" fill={INK} transform="rotate(20 -19.5 8)" />
+      <rect x="-5.5" y="-5" width="9" height="10" rx="2.2" fill={INK} />
+      <Limb d="M15 -4.5L29 -8.5" w={4} />
+      <Limb d="M15 4L30 -0.5" w={4} />
+      <path d="M2 -6.5L16.5 -6Q19.5 0 16.5 6L2 6.5Z" fill={KIT} stroke={INK} strokeWidth="1.2" strokeLinejoin="round" />
+      <path d="M16.5 -2.8L13.5 0L16.5 2.8" stroke={GLOVE} strokeWidth="1.4" fill="none" strokeLinecap="round" />
+      <circle cx="31" cy="-9.2" r="3.3" fill={GLOVE} stroke={INK} strokeWidth="1.2" />
+      <circle cx="32" cy="-1" r="3.3" fill={GLOVE} stroke={INK} strokeWidth="1.2" />
+      <circle cx="22.5" cy="0" r="4.8" fill={SKIN} stroke={INK} strokeWidth="1.2" />
+      <path d="M23.5 -4.6A4.8 4.8 0 0 1 23.5 4.6Q25.5 0 23.5 -4.6Z" fill={INK} />
+    </>
+  );
+}
+
+/** Var höften hamnar och hur kroppen vrids när handskarna ska nå ett hörn. Högt hörn: kroppen lutar uppåt. */
+function diveTo(corner: { x: number; y: number }) {
+  const sx = corner.x < 195 ? -1 : 1;
+  const high = corner.y < 90;
+  const r = high ? -18 : 5;
+  const reach = high ? { x: 28.9, y: -14.6 } : { x: 32.3, y: -2.2 };
+  return { x: corner.x - sx * reach.x, y: corner.y - reach.y, r, sx };
+}
+
 const ADS: [string, string, string][] = [
   ["#1F5A3A", "#F4EBD9", "STRAFFPUNKTEN"],
   ["#F4EBD9", "#B6422F", "11 STRAFFAR"],
@@ -102,7 +170,11 @@ const GRASS = [[118, 8], [126, 9], [135, 11], [146, 13], [159, 15], [174, 18], [
 export function Pitch({ shot = "idle", target = 0, compact = false, still = false }: { shot?: Shot; target?: number; compact?: boolean; still?: boolean }) {
   const t = TARGETS[Math.max(0, Math.min(3, target))];
   const out = { x: t.x < 195 ? 84 : 306, y: 112 };
+  // Fel svar: målvakten dyker mot bollen och räddar. Rätt svar: han kastar sig åt andra hållet.
+  const k = diveTo(shot === "save" ? t : TARGETS[Math.max(0, Math.min(3, target)) ^ 1]);
+  const diving = shot === "goal" || shot === "save";
   const style = {
+    "--kx": `${k.x}px`, "--ky": `${k.y}px`, "--kr": `${k.r}deg`, "--ksx": k.sx,
     "--sx": `${SPOT.x}px`, "--sy": `${SPOT.y}px`,
     "--tx": `${t.x}px`, "--ty": `${t.y}px`,
     "--ox": `${out.x}px`, "--oy": `${out.y}px`,
@@ -191,6 +263,21 @@ export function Pitch({ shot = "idle", target = 0, compact = false, still = fals
       >
         <BallShape id="pb" />
       </g>
+
+      {/* Målvakten står på mållinjen och dyker när skottet går */}
+      {!(still && diving) && (
+        <g transform="translate(195 117)">
+          <g className={still ? undefined : "k-ready"}><KeeperReady /></g>
+        </g>
+      )}
+      {diving && (
+        <g
+          className={still ? undefined : "k-dive"}
+          transform={still ? `translate(${k.x} ${k.y}) scale(${k.sx} 1) rotate(${k.r})` : undefined}
+        >
+          <KeeperDive />
+        </g>
+      )}
       <path d="M110 118V60H280V118" stroke="#FFFFFF" strokeWidth="4.5" strokeLinecap="square" fill="none" />
       <path d="M112.3 118V62.3H278" stroke="#C9CFC8" strokeWidth="0.9" fill="none" />
     </svg>
