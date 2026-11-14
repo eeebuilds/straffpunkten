@@ -93,7 +93,7 @@ const CROWD_A: [number, number, number, string][] = [
 const CROWD_B: [number, number, number, string][] = [
   [5, 5, 2.2, "#F8F2E4"], [20, 11, 2, "#B6422F"], [33, 4, 2.3, "#E2A72E"], [12, 24, 2.1, "#2F5D8A"], [28, 29, 2, "#F8F2E4"], [41, 19, 2.2, "#1F5A3A"],
 ];
-const GRASS = [[118, 8], [126, 9], [135, 11], [146, 13], [159, 15], [174, 18], [192, 21], [213, 25], [238, 29], [267, 33]];
+const GRASS = [[118, 8], [126, 9], [135, 11], [146, 13], [159, 15], [174, 18], [192, 21], [213, 25], [238, 29], [267, 33], [300, 38]];
 
 /**
  * Scenen. `compact` beskär läktaren så att frågan får plats under.
@@ -111,7 +111,7 @@ export function Pitch({ shot = "idle", target = 0, compact = false, still = fals
     <svg
       xmlns="http://www.w3.org/2000/svg"
       className={`pitch shot-${shot}`}
-      viewBox={compact ? "0 40 390 260" : "0 0 390 300"}
+      viewBox={compact ? "0 36 390 286" : "0 0 390 300"}
       width="100%"
       preserveAspectRatio="xMidYMid meet"
       aria-hidden="true"

@@ -164,16 +164,9 @@ export default function Daily() {
       <div className="scene">
         <Pitch compact shot={shot} target={ans && ans.choice >= 0 ? ans.choice : 0} />
         {!ans && (
-          <span className={`timer ${low ? "low" : ""}`} role="timer" aria-label={`${sec} sekunder kvar`}>
-            <svg viewBox="0 0 60 60" aria-hidden="true">
-              <circle cx="30" cy="30" r="24" fill="none" stroke="var(--paper-3)" strokeWidth="5" />
-              <circle
-                cx="30" cy="30" r="24" fill="none" stroke={low ? "var(--red)" : "var(--mustard)"} strokeWidth="5"
-                strokeDasharray={`${((2 * Math.PI * 24 * msLeft) / LIMIT).toFixed(1)} 999`} transform="rotate(-90 30 30)"
-              />
-            </svg>
-            <b>{sec}</b>
-          </span>
+          <div className={`timebar ${low ? "low" : ""}`} role="timer" aria-label={`${sec} sekunder kvar`}>
+            <i style={{ width: `${Math.max(0, (msLeft / LIMIT) * 100)}%` }} />
+          </div>
         )}
         {ans && (
           <p className={`call ${ans.correct ? "" : "no"} ${ans.late ? "small" : ""}`} aria-live="polite">

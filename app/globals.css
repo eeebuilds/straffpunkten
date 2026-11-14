@@ -144,15 +144,14 @@ button, input { font: inherit; color: inherit; }
 .scene .call.small { font-size: clamp(1.3rem, 6.4vw, 1.75rem); }
 @keyframes stamp { from { opacity: 0; transform: rotate(-7deg) scale(1.6); } to { opacity: 1; transform: rotate(-7deg) scale(1); } }
 
-/* Klocka: rund bricka med ring */
-.scene .timer {
-  position: absolute; right: 10px; bottom: 10px; width: 60px; height: 60px; border-radius: 50%;
-  background: var(--paper); border: 2px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
-  display: grid; place-items: center; line-height: 1;
+/* Klocka: en stapel längs nederkanten av arenan som krymper mot noll */
+.scene .timebar {
+  position: absolute; left: 10px; right: 10px; bottom: 9px; height: 13px;
+  border: 2px solid var(--ink); border-radius: 7px; background: var(--paper); overflow: hidden;
+  box-shadow: 2px 2px 0 var(--ink);
 }
-.scene .timer svg { position: absolute; inset: -2px; width: 60px; height: 60px; }
-.scene .timer b { position: relative; font-weight: 900; font-stretch: 125%; font-size: 1.2rem; font-variant-numeric: tabular-nums; }
-.scene .timer.low b { color: var(--red); }
+.scene .timebar i { display: block; height: 100%; background: var(--mustard); transition: width .1s linear; }
+.scene .timebar.low i { background: var(--red); }
 
 /* Elva straffar som bollar */
 .kicks { display: flex; gap: 4px; align-items: center; }
