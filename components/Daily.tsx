@@ -388,7 +388,7 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
       <section className="board-card">
         <div className="row"><span>Dagens straffpunkt</span><span>{cap(prettyDay(st.day))}</span></div>
         <div className="score-big">
-          <div className="flip"><b>{st.score}</b></div>
+          <div className="flip" aria-label={`${st.score} mål`}>{String(st.score).split("").map((d, i) => <span key={i} aria-hidden="true">{d}</span>)}</div>
           <div className="of"><b>av {TOTAL}</b><span>{verdict}</span></div>
         </div>
         {card && card.players > 1 && card.beaten_pct != null && (

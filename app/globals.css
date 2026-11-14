@@ -236,12 +236,16 @@ button, input { font: inherit; color: inherit; }
 }
 .board-card .row { display: flex; justify-content: space-between; gap: 10px; font-size: .88rem; font-weight: 800; }
 .score-big { display: flex; align-items: center; gap: 12px; }
-.flip {
-  position: relative; min-width: 96px; height: 120px; padding: 0 10px; border-radius: 10px; background: var(--paper); color: var(--ink);
-  border: 2px solid #0F2E1D; display: grid; place-items: center;
+/* Siffertavla: en vändbricka per siffra, som på en gammal resultattavla. */
+.flip { display: flex; gap: 6px; }
+.flip span {
+  position: relative; width: 62px; height: 88px; border-radius: 7px;
+  background: linear-gradient(#1b4a30 0 50%, #143a25 50% 100%); color: #f6edd6;
+  display: grid; place-items: center; font-weight: 800; font-stretch: 75%; font-size: 70px; line-height: 1;
+  font-variant-numeric: tabular-nums; box-shadow: 0 3px 0 #0b2216, inset 0 1px 0 rgba(255,255,255,.07);
 }
-.flip b { font-weight: 900; font-stretch: 125%; font-size: 96px; line-height: 1; font-variant-numeric: tabular-nums; }
-.flip::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: var(--green); }
+.flip span::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(0,0,0,.5); }
+.flip span::before { content: ""; position: absolute; left: -2px; right: -2px; top: calc(50% - 5px); height: 10px; border-left: 3px solid #0b2216; border-right: 3px solid #0b2216; border-radius: 2px; }
 .score-big .of { display: flex; flex-direction: column; gap: 4px; }
 .score-big .of b { font-weight: 900; font-stretch: 125%; font-size: 1.8rem; line-height: 1; }
 .score-big .of span { font-size: .95rem; font-weight: 700; color: var(--green-bg); }
