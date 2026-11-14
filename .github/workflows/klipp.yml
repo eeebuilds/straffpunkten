@@ -1,0 +1,44 @@
+# Dagens klipp för TikTok och Instagram: spelar in /klipp (gårdagens svåraste fråga) som en
+# 12 sekunder lång MP4 i 1080×1920 och lägger den med en färdig bildtext som en release på GitHub.
+# Körs varje morgon och kan startas för hand under Actions → Dagens klipp → Run workflow.
+name: Dagens klipp
+
+on:
+  schedule:
+    - cron: "17 6 * * *" # 07.17 svensk vintertid, 08.17 sommartid
+  workflow_dispatch:
+    inputs:
+      dag:
+        description: "Dag att göra klipp av (ÅÅÅÅ-MM-DD). Tomt = igår."
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  klipp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Installera Playwright och ffmpeg
+        run: |
+          npm install --no-save --no-package-lock playwright@1.63.0
+          npx playwright install --with-deps chromium
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+      - name: Spela in klippet
+        env:
+          KLIPP_URL: https://straffpunkten.vercel.app/klipp
+          KLIPP_DAG: ${{ github.event.inputs.dag }}
+          KLIPP_UT: klipp
+        run: node scripts/klipp.mjs
+      - name: Publicera som release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete "klipp-$KLIPP_DAG" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "klipp-$KLIPP_DAG" "klipp/klipp-$KLIPP_DAG.mp4" "klipp/klipp-$KLIPP_DAG.txt" \
+            --title "Dagens klipp $KLIPP_DAG" --notes-file "klipp/klipp-$KLIPP_DAG.txt"
