@@ -6,7 +6,8 @@ import { Ball } from "./Pitch";
 
 const LINKS: { href: string; label: string; sub: string }[] = [
   { href: "/", label: "Dagens straffpunkt", sub: "11 frågor" },
-  { href: "/topplista", label: "Topplista", sub: "Idag och veckan" },
+  { href: "/topplista", label: "Topplista", sub: "Spelare och lag" },
+  { href: "/topplista?flik=lag", label: "Supportertabellen", sub: "Vilka kan mest?" },
   { href: "/ligor", label: "Ligor", sub: "Spela mot gänget" },
   { href: "/klassisk.html#van", label: "Möt en vän", sub: "Samma mobil" },
   { href: "/klassisk.html#traning", label: "Träning", sub: "Välj kategori" },

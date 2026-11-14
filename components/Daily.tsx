@@ -9,6 +9,8 @@ import { hms, msToNextDay, prettyDay, shortDay } from "@/lib/dates";
 import { useSession } from "./useSession";
 import SignupForm from "./SignupForm";
 import LeaguePitch from "./LeaguePitch";
+import { ClubPicker, ClubTable, useClub, type ClubRow } from "./Club";
+import { clubName } from "@/lib/clubs";
 import { AllBoard, DayBoard } from "./Leaderboard";
 import { Ball, Kicks, Pitch, type Shot } from "./Pitch";
 
@@ -259,6 +261,7 @@ function Intro({ st, busy, onStart, error }: { st: PlayState; busy: boolean; onS
   useEffect(() => {
     rpc<Stats>("my_stats", { p_game: GAME, p_guest: guestId() }).then(setStats, () => {});
   }, []);
+  const { club, choose } = useClub(true);
   const resumed = st.index > 0;
   const played = !!stats && stats.played > 0;
   return (
@@ -306,6 +309,7 @@ function Intro({ st, busy, onStart, error }: { st: PlayState; busy: boolean; onS
           </>
         )}
       </div>
+      <ClubPicker club={club} onChoose={choose} id="club-intro" />
       <LeaguePitch source="intro" />
       <a href="/klassisk.html#van">På samma mobil? Möt en vän här</a>
     </>
@@ -322,6 +326,9 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
   const [refresh, setRefresh] = useState(0);
   const [saved, setSaved] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const { club, choose } = useClub(true);
+  const [clubRows, setClubRows] = useState<ClubRow[]>([]);
+  const clubRank = clubRows.find(r => r.club === club)?.rank ?? null;
 
   useEffect(() => {
     rpc<Card>("result_card", { p_play: st.play_id }).then(setCard, () => {});
@@ -342,8 +349,13 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
   }, []);
 
   const url = `${window.location.origin}/r/${st.play_id}?utm_source=spelare&utm_medium=delning&utm_campaign=kompisutmaning`;
-  const grid = st.results.map(r => (r ? "🟢" : "🔴")).join("");
-  const text = `Jag fick ${st.score} av ${TOTAL} på Straffpunkten ${shortDay(st.day)}. Slår du mig?\n${grid}\nVem kan mest fotboll i kompisgänget?`;
+  // Raden med bollar och kryss följer alltid med: den visar hur det gick utan att avslöja frågorna.
+  const grid = st.results.map(r => (r ? "⚽" : "❌")).join("");
+  const team = club && club !== "annat" ? clubName(club) : null;
+  const text =
+    `Jag fick ${st.score} av ${TOTAL}${team ? ` för ${team}` : ""} på Straffpunkten ${shortDay(st.day)}. Slår du mig?\n${grid}\n` +
+    (team && clubRank ? `${team} ligger ${clubRank}:a i dagens supportertabell.\n` : "") +
+    "Vem kan mest fotboll i kompisgänget?";
 
   async function share() {
     if (sharing) return;
@@ -354,7 +366,8 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
       // Öppna delningsmenyn direkt från trycket, även i Safari.
       // Länkens förhandsvisning använder den befintliga delningsbilden.
       if (navigator.share) {
-        await navigator.share({ text, url });
+        // Länken ligger i texten: vissa appar tar annars bara med länken och tappar raden med bollar.
+        await navigator.share({ text: `${text}\n${url}` });
         track("share_done", { kind: "link" });
         return;
       }
@@ -410,6 +423,12 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
         <button className="btn line" onClick={copy}>Kopiera text</button>
       </div>
       {shareMsg && <p className="note share-feedback" role="status">{shareMsg}</p>}
+
+      <div className="section">
+        <div className="section-head"><h2>Supportertabellen idag</h2><Link href="/topplista?flik=lag">Alla lag</Link></div>
+        <ClubTable day={st.day} mine={club} limit={8} refresh={refresh} onRows={setClubRows} />
+        <ClubPicker club={club} onChoose={c => { choose(c).then(() => setRefresh(r => r + 1)); }} id="club-result" />
+      </div>
 
       <LeaguePitch source="result" />
 
