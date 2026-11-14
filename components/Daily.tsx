@@ -9,7 +9,7 @@ import { hms, msToNextDay, prettyDay, shortDay } from "@/lib/dates";
 import { useSession } from "./useSession";
 import SignupForm from "./SignupForm";
 import { DayBoard } from "./Leaderboard";
-import { Kicks, Pitch, type Shot } from "./Pitch";
+import { Ball, Kicks, Pitch, type Shot } from "./Pitch";
 
 const TOTAL = 11;
 const LIMIT = 20000;
@@ -161,11 +161,18 @@ export default function Daily() {
         <Kicks results={st.results} current={ans ? -1 : q.index} />
         <b>{goalsNow} mål</b>
       </div>
-      <div className="scene bleed">
-        <Pitch compact shot={shot} target={ans && ans.choice >= 0 ? ans.choice : 0} timeLeft={ans ? undefined : msLeft / LIMIT} />
+      <div className="scene">
+        <Pitch compact shot={shot} target={ans && ans.choice >= 0 ? ans.choice : 0} />
         {!ans && (
           <span className={`timer ${low ? "low" : ""}`} role="timer" aria-label={`${sec} sekunder kvar`}>
-            0:{String(sec).padStart(2, "0")}
+            <svg viewBox="0 0 60 60" aria-hidden="true">
+              <circle cx="30" cy="30" r="24" fill="none" stroke="var(--paper-3)" strokeWidth="5" />
+              <circle
+                cx="30" cy="30" r="24" fill="none" stroke={low ? "var(--red)" : "var(--mustard)"} strokeWidth="5"
+                strokeDasharray={`${((2 * Math.PI * 24 * msLeft) / LIMIT).toFixed(1)} 999`} transform="rotate(-90 30 30)"
+              />
+            </svg>
+            <b>{sec}</b>
           </span>
         )}
         {ans && (
@@ -179,6 +186,7 @@ export default function Daily() {
           <span>Straff {q.index + 1} av {TOTAL}</span>
           <span>{q.category} · {["", "lätt", "medel", "svår"][q.difficulty]}</span>
         </div>
+        <div className="body">
         <h2 className={ans ? "asked" : undefined}>{q.q}</h2>
         <div className={`opts ${ans ? "done" : ""}`}>
           {q.options.map((o, i) => {
@@ -216,6 +224,7 @@ export default function Daily() {
           </div>
         )}
         {error && <p className="error" role="alert">{error}</p>}
+        </div>
       </section>
     </div>
   );
@@ -229,18 +238,20 @@ function Arrow() {
   );
 }
 
-function Flame({ size = 16 }: { size?: number }) {
+function Flame({ size = 16, color = "var(--mustard)" }: { size?: number; color?: string }) {
   return (
     <svg width={size * 0.875} height={size} viewBox="0 0 14 16" aria-hidden="true">
-      <path d="M7 1c1 3 5 5 5 9.5a5 5 0 0 1-10 0C2 8 3.5 6.5 4.5 5.5c0 2 1 3 2 3C6.5 6 5.5 3.5 7 1z" fill="var(--accent)" />
+      <path d="M7 1c1 3 5 5 5 9.5a5 5 0 0 1-10 0C2 8 3.5 6.5 4.5 5.5c0 2 1 3 2 3C6.5 6 5.5 3.5 7 1z" fill={color} />
     </svg>
   );
 }
 
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 function Skeleton() {
   return (
     <>
-      <div className="scene bleed"><Pitch /></div>
+      <div className="scene"><Pitch /></div>
       <div className="hero" aria-busy="true">
         <span className="kicker">Dagens straffpunkt</span>
         <h1>Laddar…</h1>
@@ -258,9 +269,9 @@ function Intro({ st, busy, onStart, error }: { st: PlayState; busy: boolean; onS
   const played = !!stats && stats.played > 0;
   return (
     <>
-      <div className="scene bleed"><Pitch /></div>
+      <div className="scene"><Pitch /></div>
       <div className="hero">
-        <span className="kicker">{prettyDay(st.day)}</span>
+        <span className="kicker">{cap(prettyDay(st.day))}</span>
         <h1>Dagens straffpunkt</h1>
         <p>Elva straffar från lätt till svår, 20 sekunder per skott. Samma frågor för alla och en chans per dag.</p>
       </div>
@@ -279,18 +290,24 @@ function Intro({ st, busy, onStart, error }: { st: PlayState; busy: boolean; onS
         {played ? (
           <>
             <div className="tile">
-              <b className="hot">{stats!.streak} {stats!.streak === 1 ? "dag" : "dagar"}</b>
-              <span>{stats!.streak > 0 ? "i rad. Spela idag för att hålla sviten." : "i rad. Starta en ny svit idag."}</span>
+              <span className="stub red"><Flame size={14} color="var(--paper)" /></span>
+              <span className="txt">
+                <b>{stats!.streak} {stats!.streak === 1 ? "dag" : "dagar"}</b>
+                <span>{stats!.streak > 0 ? "i rad. Spela idag för att hålla sviten." : "i rad. Starta en ny svit idag."}</span>
+              </span>
             </div>
             <div className="tile">
-              <b>{stats!.best ?? "–"}/{TOTAL}</b>
-              <span>ditt bästa{stats!.avg != null ? `, snitt ${String(stats!.avg).replace(".", ",")}` : ""}.</span>
+              <span className="stub"><Ball size={16} id="tb" /></span>
+              <span className="txt">
+                <b>{stats!.best ?? "–"}/{TOTAL}</b>
+                <span>ditt bästa{stats!.avg != null ? `, snitt ${String(stats!.avg).replace(".", ",")}` : ""}.</span>
+              </span>
             </div>
           </>
         ) : (
           <>
-            <div className="tile"><b className="hot">11</b><span>straffar, från lätt till svår.</span></div>
-            <div className="tile"><b>20 s</b><span>per skott. Tänk snabbt.</span></div>
+            <div className="tile"><span className="stub"><Ball size={16} id="tb" /></span><span className="txt"><b>11</b><span>straffar, från lätt till svår.</span></span></div>
+            <div className="tile"><span className="stub red"><Flame size={14} color="var(--paper)" /></span><span className="txt"><b>20 s</b><span>per skott. Tänk snabbt.</span></span></div>
           </>
         )}
       </div>
@@ -375,14 +392,17 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
 
   return (
     <>
-      <div className="hero">
-        <span className="kicker">Dagens straffpunkt · {prettyDay(st.day)}</span>
-        <div className="score-big"><b>{st.score}</b><span>av {TOTAL}</span></div>
-        <p className="result-line"><strong>{verdict}</strong>{" "}
-          {card && card.players > 1 && card.beaten_pct != null && <>Du slog <span className="hl">{card.beaten_pct} %</span> av dagens {card.players} spelare.</>}
-        </p>
-      </div>
-      <Kicks results={st.results} big />
+      <section className="board-card">
+        <div className="row"><span>Dagens straffpunkt</span><span>{cap(prettyDay(st.day))}</span></div>
+        <div className="score-big">
+          <div className="flip"><b>{st.score}</b></div>
+          <div className="of"><b>av {TOTAL}</b><span>{verdict}</span></div>
+        </div>
+        {card && card.players > 1 && card.beaten_pct != null && (
+          <p>Du slog <span className="hl">{card.beaten_pct} %</span> av dagens {card.players} spelare.</p>
+        )}
+        <Kicks results={st.results} big />
+      </section>
 
       {saved && onBoard && <p className="ok-msg">Klart. Du är med på topplistan som <strong>{profile!.nickname}</strong>.</p>}
 
@@ -396,16 +416,14 @@ function Results({ st, session }: { st: PlayState; session: ReturnType<typeof us
       {shareMsg && <p className="note" style={{ whiteSpace: "pre-line" }}>{shareMsg}</p>}
 
       <div className="streak-card">
-        {stats && stats.played > 0 && (
-          <div className="streak-head">
-            <Flame size={30} />
-            <div>
-              <b>{stats.streak} {stats.streak === 1 ? "dag" : "dagar"} i rad</b>
-              <span>Ditt rekord är {stats.best_streak}. Kom tillbaka i morgon.</span>
-            </div>
-          </div>
-        )}
-        <p>Nya straffar om <strong>{hms(left)}</strong>. Spela mot kompisarna i en egen <Link href="/ligor">liga</Link>.</p>
+        <span className="stub"><Flame size={26} color="var(--paper)" /></span>
+        <div className="txt">
+          <b>{stats && stats.played > 0 ? `${stats.streak} ${stats.streak === 1 ? "dag" : "dagar"} i rad` : "Kom tillbaka i morgon"}</b>
+          <p>
+            {stats && stats.played > 0 && <>Ditt rekord är {stats.best_streak}. </>}
+            Nya straffar om <strong>{hms(left)}</strong>. Spela mot kompisarna i en egen <Link href="/ligor">liga</Link>.
+          </p>
+        </div>
       </div>
 
       {profile === null && (

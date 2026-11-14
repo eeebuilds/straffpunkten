@@ -28,7 +28,7 @@ export default async function SharedResult({ params }: Props) {
   const card = await getCard(id);
   return (
     <main className="page">
-      <div className="scene bleed"><Pitch /></div>
+      <div className="scene"><Pitch /></div>
       <div className="hero">
         <span className="kicker">Utmaning</span>
         <h1>{card ? `${card.score} av 11` : "Straffpunkten"}</h1>
