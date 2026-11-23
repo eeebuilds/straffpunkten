@@ -399,65 +399,76 @@ button, input { font: inherit; color: inherit; }
 .table-scroll { overflow-x: auto; }
 .stats-page .table td, .stats-page .table th { white-space: nowrap; }
 
-/* ---------- Dagens klipp (1080×1920, 12 s) ---------- */
+/* ---------- Dagens klipp (1080×1920, 15 s) ----------
+   Säker zon: viktig text inom x 60–900 och y 110–1520, där TikToks och Reels knappar och bildtext inte ligger. */
 body:has(.clip-stage) .top { display: none; }
 body:has(.clip-stage) { background: var(--paper); }
 .clip-stage {
   position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--paper); color: var(--ink);
-  padding: 90px 60px 80px; display: flex; flex-direction: column; gap: 44px; box-sizing: border-box;
+  padding: 110px 150px 0 60px; display: flex; flex-direction: column; gap: 26px; box-sizing: border-box;
 }
-.clip-in { animation: clipIn .55s cubic-bezier(.2, .8, .3, 1) both; }
-@keyframes clipIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
-.clip-top { display: flex; flex-direction: column; gap: 22px; }
-.clip-brand { display: flex; align-items: center; gap: 20px; }
-.clip-brand b { font-weight: 900; font-stretch: 125%; font-size: 52px; text-transform: uppercase; }
-.clip-kicker { align-self: flex-start; background: var(--green); color: var(--paper); font-weight: 800; font-size: 34px; padding: 10px 22px; border-radius: 12px; }
-.clip-scene { position: relative; line-height: 0; border: 4px solid var(--ink); border-radius: 32px; overflow: hidden; box-shadow: 10px 10px 0 var(--ink); background: #DCCBA6; }
+.clip-top { display: flex; flex-direction: column; gap: 12px; }
+.clip-brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-stretch: 125%; text-transform: uppercase; }
+.clip-hook {
+  margin: 0; align-self: flex-start; padding: 8px 18px 12px; background: var(--mustard); border: 4px solid var(--ink);
+  border-radius: 16px; box-shadow: 8px 8px 0 var(--ink); font-weight: 900; font-stretch: 125%; font-size: 58px; line-height: 1.05;
+  text-wrap: balance; transform: rotate(-1.5deg);
+}
+.clip-sub { margin: 8px 0 0; font-size: 34px; font-weight: 700; color: var(--soft); }
+.clip-scene { position: relative; line-height: 0; border: 4px solid var(--ink); border-radius: 30px; overflow: hidden; box-shadow: 10px 10px 0 var(--ink); background: #DCCBA6; }
 .clip-stage .pitch { height: auto; }
-.clip-timer { position: absolute; left: 24px; right: 24px; bottom: 12px; height: 22px; border: 4px solid var(--ink); border-radius: 14px; background: var(--paper); overflow: hidden; }
-.clip-timer i { display: block; height: 100%; background: var(--mustard); animation: drain 3.4s linear 1.2s both; }
+.clip-timer { position: absolute; left: 22px; right: 22px; bottom: 12px; height: 22px; border: 4px solid var(--ink); border-radius: 14px; background: var(--paper); overflow: hidden; }
+.clip-timer i { display: block; height: 100%; background: var(--mustard); animation: drain 5s linear .3s both; }
 @keyframes drain { from { width: 100%; } to { width: 0; } }
-/* Skottet går efter 4,6 s: bollen i rätt hörn, målvakten kastar sig åt fel håll. */
-.clip-stage .pitch.shot-goal .ball { animation: shot .55s cubic-bezier(.2, .7, .3, 1) 4.6s both; }
-.clip-stage .pitch.shot-goal .shadow { opacity: 1; animation: hide .1s 4.6s forwards; }
-.clip-stage .pitch.shot-goal .trail { animation: fadein .4s 4.7s both; }
-.clip-stage .pitch.shot-goal .netfill { animation: ripple .6s 5s ease-out; }
-.clip-stage .pitch.shot-goal .k-ready { animation: sway .75s ease-in-out 0s 6 alternate, hide .1s 4.6s forwards; }
-.clip-stage .pitch.shot-goal .k-dive { animation: dive .45s cubic-bezier(.25, .7, .3, 1) 4.6s both; }
-.clip-card { background: var(--paper-2); border: 4px solid var(--ink); border-radius: 32px; box-shadow: 10px 10px 0 var(--ink); overflow: hidden; }
-.clip-band { display: flex; justify-content: space-between; gap: 20px; padding: 18px 30px; background: var(--green); color: var(--paper); font-weight: 800; font-size: 32px; }
-.clip-card h1 { margin: 0; padding: 30px 30px 10px; font-weight: 800; font-size: 54px; line-height: 1.18; letter-spacing: -.01em; text-wrap: balance; }
-.clip-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; padding: 22px 30px 34px; }
-.clip-opt {
-  display: flex; align-items: stretch; min-height: 120px; background: #fff; border: 4px solid var(--ink); border-radius: 20px;
-  box-shadow: 6px 6px 0 var(--ink); overflow: hidden;
-  animation: clipIn .45s cubic-bezier(.2, .8, .3, 1) var(--d) both;
+/* Nedräkningen 5–1 mitt på planen, en siffra per sekund. */
+.clip-count { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.clip-count b {
+  grid-area: 1 / 1; font-weight: 900; font-stretch: 125%; font-size: 260px; line-height: 1; color: var(--paper);
+  -webkit-text-stroke: 10px var(--ink); paint-order: stroke fill; opacity: 0;
+  animation: tick 1s cubic-bezier(.2, .9, .3, 1) both;
 }
-.clip-opt .key { width: 64px; flex: none; display: grid; place-items: center; background: var(--paper); border-right: 4px dashed var(--tan); font-weight: 900; font-size: 34px; color: var(--green); }
-.clip-opt .txt { flex: 1; display: flex; align-items: center; padding: 14px 20px; font-weight: 800; font-size: 38px; line-height: 1.15; }
-.clip-opt.right { animation: clipIn .45s cubic-bezier(.2, .8, .3, 1) var(--d) both, optRight .3s 5.1s forwards; }
-.clip-opt.wrong { animation: clipIn .45s cubic-bezier(.2, .8, .3, 1) var(--d) both, optDim .3s 5.1s forwards; }
+@keyframes tick { 0% { opacity: 0; transform: scale(1.6); } 15% { opacity: 1; transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(.9); } }
+/* Skottet går efter 5,3 s: bollen i rätt hörn, målvakten kastar sig åt fel håll. */
+.clip-stage .pitch.shot-goal .ball { animation: shot .55s cubic-bezier(.2, .7, .3, 1) 5.3s both; }
+.clip-stage .pitch.shot-goal .shadow { opacity: 1; animation: hide .1s 5.3s forwards; }
+.clip-stage .pitch.shot-goal .trail { animation: fadein .4s 5.4s both; }
+.clip-stage .pitch.shot-goal .netfill { animation: ripple .6s 5.7s ease-out; }
+.clip-stage .pitch.shot-goal .k-ready { animation: sway .75s ease-in-out 0s 7 alternate, hide .1s 5.3s forwards; }
+.clip-stage .pitch.shot-goal .k-dive { animation: dive .45s cubic-bezier(.25, .7, .3, 1) 5.3s both; }
+.clip-stamp {
+  position: absolute; left: 50%; top: 230px; white-space: nowrap; margin: 0; padding: 8px 24px 12px; border: 7px solid var(--green); border-radius: 16px;
+  background: var(--paper); color: var(--green); font-weight: 900; font-stretch: 125%; font-size: 96px; line-height: 1; text-transform: uppercase;
+  animation: clipStamp .35s cubic-bezier(.2, 1.4, .4, 1) 5.9s both;
+}
+@keyframes clipStamp { from { opacity: 0; transform: translateX(-50%) rotate(-7deg) scale(1.6); } to { opacity: 1; transform: translateX(-50%) rotate(-7deg) scale(1); } }
+.clip-card { background: var(--paper-2); border: 4px solid var(--ink); border-radius: 30px; box-shadow: 10px 10px 0 var(--ink); overflow: hidden; }
+.clip-band { display: flex; justify-content: space-between; gap: 20px; padding: 10px 28px; background: var(--green); color: var(--paper); font-weight: 800; font-size: 30px; }
+.clip-card h1 { margin: 0; padding: 20px 28px 4px; font-weight: 800; font-size: 46px; line-height: 1.16; letter-spacing: -.01em; text-wrap: balance; }
+.clip-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 16px 28px 26px; }
+.clip-opt { display: flex; align-items: stretch; min-height: 92px; background: #fff; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 6px 6px 0 var(--ink); overflow: hidden; }
+.clip-opt .key { width: 56px; flex: none; display: grid; place-items: center; background: var(--paper); border-right: 4px dashed var(--tan); font-weight: 900; font-size: 30px; color: var(--green); }
+.clip-opt .txt { flex: 1; display: flex; align-items: center; padding: 10px 18px; font-weight: 800; font-size: 34px; line-height: 1.12; }
+.clip-opt.right { animation: optRight .3s 5.8s forwards; }
+.clip-opt.wrong { animation: optDim .3s 5.8s forwards; }
 @keyframes optRight { to { background: var(--green-bg); border-color: var(--green); box-shadow: 6px 6px 0 var(--green); } }
-@keyframes optDim { to { opacity: .35; } }
-.clip-verdict {
-  position: absolute; left: 70px; right: 70px; top: 760px; margin: 0; text-align: center;
-  padding: 26px 30px 30px; background: var(--paper); color: var(--red); border: 8px solid var(--red); border-radius: 24px;
-  font-weight: 900; font-stretch: 125%; font-size: 76px; line-height: 1.05; text-transform: uppercase; text-wrap: balance;
-  animation: verdict .4s cubic-bezier(.2, 1.4, .4, 1) 5.6s both;
-}
-@keyframes verdict { from { opacity: 0; transform: rotate(-4deg) scale(1.5); } to { opacity: 1; transform: rotate(-4deg) scale(1); } }
-.clip-fact {
-  margin: -6px 6px 0; font-size: 38px; line-height: 1.4; color: var(--soft);
+@keyframes optDim { to { opacity: .3; } }
+/* Svaret och faktan glider upp över planens nederkant efter skottet. */
+.clip-answer {
+  position: absolute; left: 22px; right: 22px; bottom: 22px; margin: 0; padding: 16px 22px 18px; line-height: 1.3;
+  background: var(--paper-2); border: 4px solid var(--ink); border-radius: 18px; box-shadow: 6px 6px 0 var(--ink);
+  font-size: 31px; color: var(--ink);
   display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
-  animation: clipIn .5s cubic-bezier(.2, .8, .3, 1) 6.4s both;
+  animation: clipIn .45s cubic-bezier(.2, .8, .3, 1) 6.4s both;
 }
-.clip-fact b { color: var(--green); font-weight: 900; }
+.clip-answer b { color: var(--green); font-weight: 900; }
+@keyframes clipIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
+/* Uppmaningen glider upp över nedre halvan efter 10 s men lämnar frågan synlig, så att klippet tål att loopa. */
 .clip-end {
-  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px;
-  background: var(--green); color: var(--paper); text-align: center; padding: 80px;
-  animation: endIn .5s cubic-bezier(.2, .8, .3, 1) 9s both;
+  position: absolute; left: 0; right: 0; top: 1000px; bottom: 0; padding: 70px 150px 0 60px;
+  display: flex; flex-direction: column; gap: 22px; background: var(--green); color: var(--paper); border-top: 6px solid var(--ink);
+  animation: endIn .5s cubic-bezier(.2, .8, .3, 1) 10s both;
 }
 @keyframes endIn { from { transform: translateY(100%); } to { transform: none; } }
-.clip-end-title { margin: 0; font-weight: 900; font-stretch: 125%; font-size: 96px; line-height: 1.02; text-wrap: balance; }
-.clip-end-sub { margin: 0; font-size: 44px; font-weight: 600; color: var(--green-bg); text-wrap: balance; }
-.clip-end-url { margin: 0; padding: 18px 34px; background: var(--mustard); color: var(--ink); border: 4px solid var(--ink); border-radius: 20px; box-shadow: 8px 8px 0 var(--ink); font-weight: 900; font-size: 48px; }
+.clip-end-title { margin: 0; font-weight: 900; font-stretch: 125%; font-size: 82px; line-height: 1.02; text-wrap: balance; }
+.clip-end-sub { margin: 0; align-self: flex-start; padding: 12px 26px; background: var(--mustard); color: var(--ink); border: 4px solid var(--ink); border-radius: 16px; box-shadow: 8px 8px 0 var(--ink); font-weight: 900; font-size: 46px; }
+.clip-end-club { margin: 8px 0 0; font-size: 42px; font-weight: 700; color: var(--green-bg); line-height: 1.25; text-wrap: balance; }

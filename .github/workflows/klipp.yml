@@ -1,15 +1,17 @@
-# Dagens klipp för TikTok och Instagram: spelar in /klipp (gårdagens svåraste fråga) som en
-# 12 sekunder lång MP4 i 1080×1920 och lägger den med en färdig bildtext som en release på GitHub.
-# Körs varje morgon och kan startas för hand under Actions → Dagens klipp → Run workflow.
+# Dagens klipp för TikTok och Instagram: spelar in /klipp (gårdagens bästa klippfråga) som en
+# 15 sekunder lång MP4 i 1080×1920 och lägger den med en färdig bildtext som en release på GitHub.
+# Startas för hand under Actions → Dagens klipp → Run workflow. Den dagliga körningen är pausad;
+# lägg tillbaka "schedule: - cron: \"17 6 * * *\"" under on: för att slå på den igen.
 name: Dagens klipp
 
 on:
-  schedule:
-    - cron: "17 6 * * *" # 07.17 svensk vintertid, 08.17 sommartid
   workflow_dispatch:
     inputs:
       dag:
         description: "Dag att göra klipp av (ÅÅÅÅ-MM-DD). Tomt = igår."
+        required: false
+      id:
+        description: "Eller en viss fråga (id) som redan spelats. Tomt = dagens urval."
         required: false
 
 permissions:
@@ -33,12 +35,13 @@ jobs:
         env:
           KLIPP_URL: https://straffpunkten.vercel.app/klipp
           KLIPP_DAG: ${{ github.event.inputs.dag }}
+          KLIPP_ID: ${{ github.event.inputs.id }}
           KLIPP_UT: klipp
         run: node scripts/klipp.mjs
       - name: Publicera som release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release delete "klipp-$KLIPP_DAG" --yes --cleanup-tag 2>/dev/null || true
-          gh release create "klipp-$KLIPP_DAG" "klipp/klipp-$KLIPP_DAG.mp4" "klipp/klipp-$KLIPP_DAG.txt" \
-            --title "Dagens klipp $KLIPP_DAG" --notes-file "klipp/klipp-$KLIPP_DAG.txt"
+          gh release delete "$KLIPP_NAMN" --yes --cleanup-tag 2>/dev/null || true
+          gh release create "$KLIPP_NAMN" "klipp/$KLIPP_NAMN.mp4" "klipp/$KLIPP_NAMN.txt" \
+            --title "Klipp $KLIPP_NAMN" --notes-file "klipp/$KLIPP_NAMN.txt"
