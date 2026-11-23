@@ -1,5 +1,5 @@
 # Dagens klipp för TikTok och Instagram: spelar in /klipp (gårdagens bästa klippfråga) som en
-# 15 sekunder lång MP4 i 1080×1920 och lägger den med en färdig bildtext som en release på GitHub.
+# 15–30 sekunder lång MP4 i 1080×1920 och lägger den med en färdig bildtext som en release på GitHub.
 # Startas för hand under Actions → Dagens klipp → Run workflow. Den dagliga körningen är pausad;
 # lägg tillbaka "schedule: - cron: \"17 6 * * *\"" under on: för att slå på den igen.
 name: Dagens klipp
@@ -12,6 +12,9 @@ on:
         required: false
       id:
         description: "Eller en viss fråga (id) som redan spelats. Tomt = dagens urval."
+        required: false
+      serie:
+        description: "Eller en serie med tre frågor (blagult, vm). Tomt = en fråga."
         required: false
 
 permissions:
@@ -36,6 +39,7 @@ jobs:
           KLIPP_URL: https://straffpunkten.vercel.app/klipp
           KLIPP_DAG: ${{ github.event.inputs.dag }}
           KLIPP_ID: ${{ github.event.inputs.id }}
+          KLIPP_SERIE: ${{ github.event.inputs.serie }}
           KLIPP_UT: klipp
         run: node scripts/klipp.mjs
       - name: Publicera som release

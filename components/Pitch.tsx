@@ -167,7 +167,7 @@ const GRASS = [[118, 8], [126, 9], [135, 11], [146, 13], [159, 15], [174, 18], [
  * Scenen. `compact` beskär läktaren så att frågan får plats under.
  * Bakgrunden ritas bredare än bildytan så att planen fyller ut sidorna när höjden begränsas.
  */
-export function Pitch({ shot = "idle", target = 0, compact = false, still = false }: { shot?: Shot; target?: number; compact?: boolean; still?: boolean }) {
+export function Pitch({ shot = "idle", target = 0, compact = false, still = false, uid: u = "" }: { shot?: Shot; target?: number; compact?: boolean; still?: boolean; /** prefix för svg-id när flera planer visas samtidigt */ uid?: string }) {
   const t = TARGETS[Math.max(0, Math.min(3, target))];
   const out = { x: t.x < 195 ? 84 : 306, y: 112 };
   // Fel svar: målvakten dyker mot bollen och räddar. Rätt svar: han kastar sig åt andra hållet.
@@ -190,31 +190,31 @@ export function Pitch({ shot = "idle", target = 0, compact = false, still = fals
       style={style}
     >
       <defs>
-        <pattern id="crowdA" width="62" height="26" patternUnits="userSpaceOnUse">
+        <pattern id={`${u}crowdA`} width="62" height="26" patternUnits="userSpaceOnUse">
           {CROWD_A.map(([cx, cy, r, f], i) => <circle key={i} cx={cx} cy={cy} r={r} fill={f} />)}
         </pattern>
-        <pattern id="crowdB" width="46" height="34" patternUnits="userSpaceOnUse" patternTransform="translate(9 5)">
+        <pattern id={`${u}crowdB`} width="46" height="34" patternUnits="userSpaceOnUse" patternTransform="translate(9 5)">
           {CROWD_B.map(([cx, cy, r, f], i) => <circle key={i} cx={cx} cy={cy} r={r} fill={f} />)}
         </pattern>
-        <filter id="soft" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="1.5" /></filter>
-        <linearGradient id="roof" x1="0" y1="0" x2="0" y2="1">
+        <filter id={`${u}soft`} x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="1.5" /></filter>
+        <linearGradient id={`${u}roof`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#2B2A22" stopOpacity="0.55" />
           <stop offset="0.45" stopColor="#2B2A22" stopOpacity="0.12" />
           <stop offset="1" stopColor="#2B2A22" stopOpacity="0" />
         </linearGradient>
-        <pattern id="net" width="6" height="6" patternUnits="userSpaceOnUse">
+        <pattern id={`${u}net`} width="6" height="6" patternUnits="userSpaceOnUse">
           <path d="M0 0H6M0 0V6" stroke="#FFFFFF" strokeOpacity="0.75" strokeWidth="0.6" fill="none" />
         </pattern>
       </defs>
 
       {/* Läktaren, oskarp som i ett foto med fokus på målet */}
       <rect x="-400" y="0" width="1190" height="104" fill="#DCCBA6" />
-      <g filter="url(#soft)">
-        <rect x="-410" y="-4" width="1210" height="110" fill="url(#crowdA)" opacity="0.75" />
-        <rect x="-410" y="-4" width="1210" height="110" fill="url(#crowdB)" opacity="0.55" />
+      <g filter={`url(#${u}soft)`}>
+        <rect x="-410" y="-4" width="1210" height="110" fill={`url(#${u}crowdA)`} opacity="0.75" />
+        <rect x="-410" y="-4" width="1210" height="110" fill={`url(#${u}crowdB)`} opacity="0.55" />
         <path d="M-410 34H800M-410 70H800" stroke="#A8936B" strokeWidth="5" strokeOpacity="0.6" />
       </g>
-      <rect x="-400" y="0" width="1190" height="104" fill="url(#roof)" />
+      <rect x="-400" y="0" width="1190" height="104" fill={`url(#${u}roof)`} />
 
       {/* Plåtskyltar */}
       <rect x="-400" y="100" width="1190" height="18" fill="#1E2A22" />
@@ -241,10 +241,10 @@ export function Pitch({ shot = "idle", target = 0, compact = false, still = fals
       {/* Målet: genomskinligt nät så att läktaren syns bakom */}
       <path d="M124 72H266V110H124Z" fill="#FFFFFF" fillOpacity="0.12" />
       <g className="netfill">
-        <path d="M124 72H266V110H124Z" fill="url(#net)" />
-        <path d="M110 60H280L266 72H124Z" fill="url(#net)" />
-        <path d="M110 60L124 72V110L110 118Z" fill="url(#net)" />
-        <path d="M280 60L266 72V110L280 118Z" fill="url(#net)" />
+        <path d="M124 72H266V110H124Z" fill={`url(#${u}net)`} />
+        <path d="M110 60H280L266 72H124Z" fill={`url(#${u}net)`} />
+        <path d="M110 60L124 72V110L110 118Z" fill={`url(#${u}net)`} />
+        <path d="M280 60L266 72V110L280 118Z" fill={`url(#${u}net)`} />
       </g>
       <path d="M110 60L124 72H266L280 60M124 72V110H266V72M110 118L124 110M280 118L266 110" stroke="#FFFFFF" strokeWidth="1" fill="none" />
 
@@ -261,7 +261,7 @@ export function Pitch({ shot = "idle", target = 0, compact = false, still = fals
         className={still ? undefined : "ball"}
         transform={still ? (shot === "goal" ? `translate(${t.x} ${t.y}) scale(0.42)` : `translate(${SPOT.x} ${SPOT.y}) scale(0.85)`) : undefined}
       >
-        <BallShape id="pb" />
+        <BallShape id={`${u}pb`} />
       </g>
 
       {/* Målvakten står på mållinjen och dyker när skottet går */}

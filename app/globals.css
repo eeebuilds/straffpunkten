@@ -399,8 +399,10 @@ button, input { font: inherit; color: inherit; }
 .table-scroll { overflow-x: auto; }
 .stats-page .table td, .stats-page .table th { white-space: nowrap; }
 
-/* ---------- Dagens klipp (1080×1920, 15 s) ----------
-   Säker zon: viktig text inom x 60–900 och y 110–1520, där TikToks och Reels knappar och bildtext inte ligger. */
+/* ---------- Klippen (1080×1920) ----------
+   Säker zon: viktig text inom x 60–930 och y 110–1520, där TikToks och Reels knappar och bildtext inte ligger.
+   Varje fråga (.clip-slot) får --s (när den syns), --t (när skottet går) och --think (tiden emellan);
+   alla tider räknas från dem. Slutkortet kommer vid --end på .clip-stage. */
 body:has(.clip-stage) .top { display: none; }
 body:has(.clip-stage) { background: var(--paper); }
 .clip-stage {
@@ -411,34 +413,34 @@ body:has(.clip-stage) { background: var(--paper); }
 .clip-brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-stretch: 125%; text-transform: uppercase; }
 .clip-hook {
   margin: 0; align-self: flex-start; padding: 8px 18px 12px; background: var(--mustard); border: 4px solid var(--ink);
-  border-radius: 16px; box-shadow: 8px 8px 0 var(--ink); font-weight: 900; font-stretch: 125%; font-size: 58px; line-height: 1.05;
-  text-wrap: balance; transform: rotate(-1.5deg);
+  border-radius: 16px; box-shadow: 8px 8px 0 var(--ink); font-weight: 900; font-stretch: 125%; font-size: 54px; line-height: 1.06;
+  text-wrap: balance; transform: rotate(-1.2deg);
 }
 .clip-sub { margin: 8px 0 0; font-size: 34px; font-weight: 700; color: var(--soft); }
+.clip-slots { display: grid; }
+.clip-slot { grid-area: 1 / 1; display: flex; flex-direction: column; gap: 26px; animation: slotIn .4s cubic-bezier(.2, .8, .3, 1) var(--s) both; }
+.clip-slot.first { animation: none; }
+.clip-slot:not(.last) { animation: slotIn .4s cubic-bezier(.2, .8, .3, 1) var(--s) both, slotOut .35s ease-in calc(var(--t) + 2.05s) forwards; }
+.clip-slot.first:not(.last) { animation: slotOut .35s ease-in calc(var(--t) + 2.05s) forwards; }
+@keyframes slotIn { from { opacity: 0; transform: translateX(120px); } to { opacity: 1; transform: none; } }
+@keyframes slotOut { to { opacity: 0; transform: translateX(-120px); visibility: hidden; } }
 .clip-scene { position: relative; line-height: 0; border: 4px solid var(--ink); border-radius: 30px; overflow: hidden; box-shadow: 10px 10px 0 var(--ink); background: #DCCBA6; }
 .clip-stage .pitch { height: auto; }
+/* Stapeln visar betänketiden, som i spelet, men utan siffror: kroken handlar om kunskap, inte tid. */
 .clip-timer { position: absolute; left: 22px; right: 22px; bottom: 12px; height: 22px; border: 4px solid var(--ink); border-radius: 14px; background: var(--paper); overflow: hidden; }
-.clip-timer i { display: block; height: 100%; background: var(--mustard); animation: drain 5s linear .3s both; }
+.clip-timer i { display: block; height: 100%; background: var(--mustard); animation: drain linear var(--s) both; animation-duration: var(--think); }
 @keyframes drain { from { width: 100%; } to { width: 0; } }
-/* Nedräkningen 5–1 mitt på planen, en siffra per sekund. */
-.clip-count { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
-.clip-count b {
-  grid-area: 1 / 1; font-weight: 900; font-stretch: 125%; font-size: 260px; line-height: 1; color: var(--paper);
-  -webkit-text-stroke: 10px var(--ink); paint-order: stroke fill; opacity: 0;
-  animation: tick 1s cubic-bezier(.2, .9, .3, 1) both;
-}
-@keyframes tick { 0% { opacity: 0; transform: scale(1.6); } 15% { opacity: 1; transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(.9); } }
-/* Skottet går efter 5,3 s: bollen i rätt hörn, målvakten kastar sig åt fel håll. */
-.clip-stage .pitch.shot-goal .ball { animation: shot .55s cubic-bezier(.2, .7, .3, 1) 5.3s both; }
-.clip-stage .pitch.shot-goal .shadow { opacity: 1; animation: hide .1s 5.3s forwards; }
-.clip-stage .pitch.shot-goal .trail { animation: fadein .4s 5.4s both; }
-.clip-stage .pitch.shot-goal .netfill { animation: ripple .6s 5.7s ease-out; }
-.clip-stage .pitch.shot-goal .k-ready { animation: sway .75s ease-in-out 0s 7 alternate, hide .1s 5.3s forwards; }
-.clip-stage .pitch.shot-goal .k-dive { animation: dive .45s cubic-bezier(.25, .7, .3, 1) 5.3s both; }
+/* Skottet: bollen i rätt hörn, målvakten kastar sig åt fel håll. */
+.clip-stage .pitch.shot-goal .ball { animation: shot .55s cubic-bezier(.2, .7, .3, 1) var(--t) both; }
+.clip-stage .pitch.shot-goal .shadow { opacity: 1; animation: hide .1s var(--t) forwards; }
+.clip-stage .pitch.shot-goal .trail { animation: fadein .4s calc(var(--t) + .1s) both; }
+.clip-stage .pitch.shot-goal .netfill { animation: ripple .6s calc(var(--t) + .4s) ease-out; }
+.clip-stage .pitch.shot-goal .k-ready { animation: sway .75s ease-in-out 0s infinite alternate, hide .1s var(--t) forwards; }
+.clip-stage .pitch.shot-goal .k-dive { animation: dive .45s cubic-bezier(.25, .7, .3, 1) var(--t) both; }
 .clip-stamp {
   position: absolute; left: 50%; top: 230px; white-space: nowrap; margin: 0; padding: 8px 24px 12px; border: 7px solid var(--green); border-radius: 16px;
   background: var(--paper); color: var(--green); font-weight: 900; font-stretch: 125%; font-size: 96px; line-height: 1; text-transform: uppercase;
-  animation: clipStamp .35s cubic-bezier(.2, 1.4, .4, 1) 5.9s both;
+  animation: clipStamp .35s cubic-bezier(.2, 1.4, .4, 1) calc(var(--t) + .6s) both;
 }
 @keyframes clipStamp { from { opacity: 0; transform: translateX(-50%) rotate(-7deg) scale(1.6); } to { opacity: 1; transform: translateX(-50%) rotate(-7deg) scale(1); } }
 .clip-card { background: var(--paper-2); border: 4px solid var(--ink); border-radius: 30px; box-shadow: 10px 10px 0 var(--ink); overflow: hidden; }
@@ -448,8 +450,8 @@ body:has(.clip-stage) { background: var(--paper); }
 .clip-opt { display: flex; align-items: stretch; min-height: 92px; background: #fff; border: 4px solid var(--ink); border-radius: 18px; box-shadow: 6px 6px 0 var(--ink); overflow: hidden; }
 .clip-opt .key { width: 56px; flex: none; display: grid; place-items: center; background: var(--paper); border-right: 4px dashed var(--tan); font-weight: 900; font-size: 30px; color: var(--green); }
 .clip-opt .txt { flex: 1; display: flex; align-items: center; padding: 10px 18px; font-weight: 800; font-size: 34px; line-height: 1.12; }
-.clip-opt.right { animation: optRight .3s 5.8s forwards; }
-.clip-opt.wrong { animation: optDim .3s 5.8s forwards; }
+.clip-opt.right { animation: optRight .3s calc(var(--t) + .5s) forwards; }
+.clip-opt.wrong { animation: optDim .3s calc(var(--t) + .5s) forwards; }
 @keyframes optRight { to { background: var(--green-bg); border-color: var(--green); box-shadow: 6px 6px 0 var(--green); } }
 @keyframes optDim { to { opacity: .3; } }
 /* Svaret och faktan glider upp över planens nederkant efter skottet. */
@@ -458,17 +460,36 @@ body:has(.clip-stage) { background: var(--paper); }
   background: var(--paper-2); border: 4px solid var(--ink); border-radius: 18px; box-shadow: 6px 6px 0 var(--ink);
   font-size: 31px; color: var(--ink);
   display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
-  animation: clipIn .45s cubic-bezier(.2, .8, .3, 1) 6.4s both;
+  animation: clipIn .45s cubic-bezier(.2, .8, .3, 1) calc(var(--t) + 1s) both;
 }
 .clip-answer b { color: var(--green); font-weight: 900; }
 @keyframes clipIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
-/* Uppmaningen glider upp över nedre halvan efter 10 s men lämnar frågan synlig, så att klippet tål att loopa. */
+/* Slutkortet: över nedre halvan för en fråga (frågan syns kvar, så att klippet tål att loopa), hela bilden för en serie. */
 .clip-end {
-  position: absolute; left: 0; right: 0; top: 1000px; bottom: 0; padding: 70px 150px 0 60px;
-  display: flex; flex-direction: column; gap: 22px; background: var(--green); color: var(--paper); border-top: 6px solid var(--ink);
-  animation: endIn .5s cubic-bezier(.2, .8, .3, 1) 10s both;
+  position: absolute; left: 0; right: 0; top: 1000px; bottom: 0; padding: 64px 150px 0 60px;
+  display: flex; flex-direction: column; gap: 20px; background: var(--green); color: var(--paper); border-top: 6px solid var(--ink);
+  animation: endIn .5s cubic-bezier(.2, .8, .3, 1) var(--end) both;
 }
+.clip-end.full { top: 0; padding-top: 140px; border-top: 0; }
 @keyframes endIn { from { transform: translateY(100%); } to { transform: none; } }
-.clip-end-title { margin: 0; font-weight: 900; font-stretch: 125%; font-size: 82px; line-height: 1.02; text-wrap: balance; }
-.clip-end-sub { margin: 0; align-self: flex-start; padding: 12px 26px; background: var(--mustard); color: var(--ink); border: 4px solid var(--ink); border-radius: 16px; box-shadow: 8px 8px 0 var(--ink); font-weight: 900; font-size: 46px; }
-.clip-end-club { margin: 8px 0 0; font-size: 42px; font-weight: 700; color: var(--green-bg); line-height: 1.25; text-wrap: balance; }
+.clip-end-kicker { margin: 0; font-weight: 900; font-stretch: 125%; font-size: 76px; line-height: 1.02; }
+.clip-scale { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.clip-scale li {
+  display: flex; align-items: center; gap: 22px; padding: 14px 22px; background: var(--paper); color: var(--ink);
+  border: 4px solid var(--ink); border-radius: 18px; box-shadow: 6px 6px 0 var(--ink); font-size: 36px; font-weight: 700;
+  animation: clipIn .4s cubic-bezier(.2, .8, .3, 1) both;
+}
+.clip-scale li b { flex: none; min-width: 150px; font-weight: 900; font-stretch: 125%; color: var(--green); }
+.clip-scale li:nth-child(1) { animation-delay: calc(var(--end) + .3s); }
+.clip-scale li:nth-child(2) { animation-delay: calc(var(--end) + .45s); }
+.clip-scale li:nth-child(3) { animation-delay: calc(var(--end) + .6s); }
+.clip-scale li:nth-child(4) { animation-delay: calc(var(--end) + .75s); }
+.clip-end-ask { margin: 6px 0 22px; font-size: 40px; font-weight: 800; color: var(--mustard); }
+.clip-end-title { margin: 0; font-weight: 900; font-stretch: 125%; font-size: 62px; line-height: 1.04; text-wrap: balance; }
+.clip-end.full .clip-end-title { font-size: 56px; padding-top: 26px; border-top: 4px dashed rgba(244, 235, 217, .35); }
+.clip-end-line { margin: 0; font-size: 38px; font-weight: 600; line-height: 1.3; color: var(--paper); text-wrap: balance; }
+.clip-end-line b { color: var(--mustard); font-weight: 900; }
+.clip-end-cta {
+  margin: 10px 0 0; align-self: flex-start; padding: 12px 24px; background: var(--mustard); color: var(--ink); border: 4px solid var(--ink);
+  border-radius: 16px; box-shadow: 8px 8px 0 var(--ink); font-weight: 900; font-size: 34px; white-space: nowrap;
+}
